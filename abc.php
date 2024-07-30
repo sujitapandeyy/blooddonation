@@ -11,12 +11,6 @@
     <!-- Favicon -->
     <link rel="icon" href="favIcon.png" type="image/png">
     <style>
-        .carousel {
-            display: flex;
-            overflow: hidden;
-            position: relative;
-        }
-        
         .carousel-wrapper {
             display: flex;
             transition: transform 1.5s ease-in-out;
@@ -51,9 +45,9 @@
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="max-w-7xl mx-auto mt-32 relative">
-        <div class="carousel">
+<body class="">
+    <div class="max-full mt-32 relative overflow-hidden px-1">
+        <div class="carousel flex relative">
             <div class="carousel-wrapper">
                 <!-- Duplicate images for seamless loop -->
                 <div class="carousel-item rounded">
@@ -110,10 +104,10 @@
             updateCarousel();
         }
 
-        document.getElementById('prevButton').addEventListener('click', () => {
-            currentIndex = (currentIndex > 0) ? currentIndex - 1 : (totalItems / 2 - 1);
-            updateCarousel();
-        });
+        // document.getElementById('prevButton').addEventListener('click', () => {
+        //     currentIndex = (currentIndex > 0) ? currentIndex - 1 : (totalItems / 2 - 1);
+        //     updateCarousel();
+        // });
 
         document.getElementById('nextButton').addEventListener('click', goToNext);
 

@@ -10,14 +10,14 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .bg-secmain {
-            background-image: url('./img/land4.png');
+            background-image: url('./img/login1.png');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             position: relative;
         }
 
-        .bg-secmain::before {
+        /* .bg-secmain::before {
             content: '';
             position: absolute;
             top: 0;
@@ -37,7 +37,7 @@
             font-weight: bold;
             text-align: center;
             width: 100%;
-        }
+        } */
     </style>
 </head>
 
@@ -49,10 +49,11 @@
         <div class="bg-main flex w-full max-w-5xl h-full bg-white rounded shadow-lg">
             <!-- Image Section -->
             <div class="flex-1 bg-secmain bg-cover bg-center flex relative">
-                <div class="absolute inset-0 bg-black opacity-50 z-0"></div>
-                <div class="text-overlay ">
-                    Welcome to Raktasewa
-                </div>
+                <!-- <div class="absolute inset-0 bg-black opacity-50 z-0"></div> -->
+                <!-- <div class="absolute inset-0 bg-black opacity-50 z-0"></div> -->
+                <!-- <div class="text-overlay "> -->
+                    <!-- Welcome to Raktasewa -->
+                <!-- </div> -->
             </div>
             <!-- Form Section -->
             <div class="flex-1 p-12 bg-gray-100 flex flex-col items-center justify-center">

@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $_SESSION['Bloggedin'] = true;
                         $_SESSION['bankname'] = $result_fetch['fullname'];
                         $_SESSION['bankemail'] = $result_fetch['email'];
-                        header("Location: Bbankdashboard.php");
+                        header("Location: Bankdashboard\Bbankdashboard.php");
                     } else {
                         $_SESSION['Uloggedin'] = true;
                         $_SESSION['username'] = $result_fetch['fullname'];
@@ -76,12 +76,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $confirm_password = validate($_POST['cpassword']);
         $phone = validate($_POST['phone']);
         $address = validate($_POST['address']);
+        $latitude = validate($_POST['latitude']);
+        $longitude = validate($_POST['longitude']);
         $user_type = validate($_POST['user_type']);
 
         if (empty($fullname) || empty($email) || empty($password) || empty($confirm_password) || empty($phone) || empty($address) || empty($user_type)) {
             header("Location: register.php?error=Please fill all the fields!!");
             exit();
-        } elseif (!preg_match('/^[a-zA-Z]+(?: [a-zA-Z]+)*$/', $fullname)) {
+        
+        }else if(empty($latitude) || empty($longitude)){
+            header("Location: register.php?error=Enter correct address ");
+            exit();
+        
+        }elseif (!preg_match('/^[a-zA-Z]+(?: [a-zA-Z]+)*$/', $fullname)) {
             header("Location: register.php?error=Name must contain only letters");
             exit();
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -105,18 +112,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 if ($user_type == 'Donor') {
                     $donor_blood_type = validate($_POST['donor_blood_type']);
-                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, user_type, donor_blood_type) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                    $sql->bind_param("sssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type, $donor_blood_type);
+                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, user_type, latitude,longitude,donor_blood_type) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)");
+                    $sql->bind_param("sssssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type,$latitude,$longitude, $donor_blood_type);
                 } elseif ($user_type == 'BloodBank') {
-                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, user_type) VALUES (?, ?, ?, ?, ?, ?)");
-                    $sql->bind_param("ssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type);
+                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address,latitude,longitude, user_type) VALUES (?, ?, ?, ?, ?, ?,?,?)");
+                    $sql->bind_param("ssssssss", $fullname, $email, $hashed_password, $phone, $address,$latitude,$longitude, $user_type);
                 } elseif ($user_type == 'Admin') {
                     $admin_code = validate($_POST['admin_code']);
                     $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, user_type) VALUES (?, ?, ?, ?, ?, ?)");
                     $sql->bind_param("ssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type);
                 } else {
-                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, user_type) VALUES (?, ?, ?, ?, ?, ?)");
-                    $sql->bind_param("ssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type);
+                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address,latitude,longitude, user_type) VALUES (?, ?, ?, ?,?,?, ?, ?)");
+                    $sql->bind_param("ssssssss", $fullname, $email, $hashed_password, $phone, $address,$latitude,$longitude, $user_type);
                 }
 
                 if ($sql->execute()) {

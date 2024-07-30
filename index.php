@@ -48,9 +48,9 @@
     </style>
 </head>
 
-<body>
+<body class="bg-gray-100">
     <?php @include 'header.php'; ?>
-    <section class="relative flex pt-32 ">
+    <section class=" relative flex pt-32 ">
         <div class="bg-container">
             <iframe src="abc.php" class="bg-iframe"></iframe>
         </div>
@@ -60,8 +60,8 @@
                     <h1 class="text-3xl font-bold mb-7">We are here to save life</h1>
                     <h2 class="text-xl font-bold mb-4">Search Nearby Donor</h2>
                     <div class="flex flex-col md:flex-row items-center justify-center">
-                        <input type="text" placeholder="Blood Type" class="w-full md:w-60 px-4 py-2 mb-2 md:mb-0 md:mr-2 border rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <input type="text" placeholder="Address" class="w-full md:w-60 px-4 py-2 mb-2 md:mb-0 md:mr-2 border rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" placeholder="Blood Type" class="w-full md:w-60 text-gray-800  px-4 py-2 mb-2 md:mb-0 md:mr-2 border rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" placeholder="Address" class="w-full md:w-60 px-4 text-gray-800 py-2 mb-2 md:mb-0 md:mr-2 border rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <button class="w-full md:w-30 px-4 py-2 text-white bg-blue-500 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-blue-600 flex items-center justify-center">
                             <i class="fas fa-search mr-2"></i>
                             Search
@@ -73,6 +73,8 @@
     </section>
     <?php @include 'bloodtype.php'; ?>
     <?php @include 'bloodbanks.php'; ?>
+    <?php @include 'footor.php'; ?>
+
 
 </body>
 

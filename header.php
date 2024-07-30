@@ -13,7 +13,7 @@ session_start();?>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
           .custom-shadow {
-            filter: drop-shadow(1px 1px 20px red);
+            filter: drop-shadow(10px 10px 10px red);
           }
     </style>
     <title>Document</title>
