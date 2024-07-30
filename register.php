@@ -8,15 +8,17 @@
     <title>Login And Registration</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/72f30a4d56.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="addressInput.js"></script>
     <style>
         .bg-secmain {
-            background-image: url('./img/land4.png');
+            background-image: url('./img/login1.png');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             position: relative;
         }
-        .bg-secmain::before {
+        /* .bg-secmain::before {
             content: '';
             position: absolute;
             top: 0;
@@ -26,7 +28,7 @@
             background: inherit;
             filter: blur(3px);
             z-index: 0;
-        }
+        } */
 
         .formerror {
             color: red;
@@ -42,7 +44,7 @@
             /* Smaller font size for input fields */
         }
 
-        .text-overlay {
+        /* .text-overlay {
             position: relative;
             z-index: 1;
             color: whitesmoke;
@@ -50,6 +52,23 @@
             font-weight: bold;
             text-align: center;
             width: 100%;
+        } */
+
+        .suggestions {
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            position: absolute;
+            z-index: 1000;
+            background: #fff;
+            width: 200px;
+        }
+        .suggestion {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .suggestion:hover {
+            background: #f0f0f0;
         }
     </style>
     <script>
@@ -78,10 +97,8 @@
     <section id="popup" class="flex items-center justify-center min-h-screen bg-gray-100">
         <div class="flex mt-20  w-full max-w-6xl bg-gray-100 shadow-lg overflow-hidden">
         <div class="flex-1 bg-secmain bg-cover bg-center flex relative">
-                <div class="absolute inset-0 bg-black opacity-50 z-0"></div>
-                <div class="text-overlay ">
-                    Welcome to Raktasewa
-                </div>
+                <div class="absolute inset-0 z-0"></div>
+              
             </div>
             <div class="w-1/2 p-6">
                 <div class="flex item-center justify-center mb-2">
@@ -140,6 +157,13 @@
                                     <input type="text" placeholder="Enter Address" name="address" id="userAddress"
                                         required
                                         class="pl-12 py-3 w-full border-b-2 bg-transparent border-gray-400 focus:border-red-600 outline-none input-field">
+                                    <div id="userSuggestions" class="suggestions"></div>
+                                    <input type="hidden" id="userLat" name="latitude">
+                                    <input type="hidden" id="userLong" name="longitude">
+                                    <div>
+                                        <p id="displayUserLat"></p>
+                                        <p id="displayUserLong"></p>
+                                    </div>
                                 </div>
                             </div>
                             <input type="hidden" name="user_type" value="User">
@@ -150,6 +174,7 @@
                                     href="login.php" class="text-blue-500 hover:underline">Login now</a></div>
                         </form>
                     </div>
+               
 
                     <div id="donorRegistrationForm" style="display: none;" class="w-full">
                         <form action="login_register.php" name="donorRegistrationForm" onsubmit="return validateForm()"
@@ -244,10 +269,16 @@
                         </form>
                     </div>
                 </div>
-
+                </div>
             </div>
         </div>
     </section>
+
+    <script>
+        $(document).ready(function () {
+            initializeAddressInput('userAddress', 'userSuggestions', 'userLat', 'userLong', 'displayUserLat', 'displayUserLong');
+        });
+    </script>
 </body>
 
 </html>

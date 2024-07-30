@@ -21,7 +21,7 @@ if (!isset($_SESSION['Adminemail'])) {
     <script src="https://kit.fontawesome.com/72f30a4d56.js" crossorigin="anonymous"></script>
     <style>
         .custom-shadow {
-    filter: drop-shadow(1px 1px 20px red);
+    filter: drop-shadow(10px 10px 20px white);
 }
     </style>
 </head>
@@ -66,14 +66,10 @@ if (!isset($_SESSION['Adminemail'])) {
         </nav>
         <div class="flex flex-col items-center mt-4">
                 <?php if (isset($_SESSION['Adminemail'])) { ?>
-                    <a class="flex items-center bg-red-500 text-white font-bold py-2 px-4 rounded-full hover:bg-red-600 transition" href="logout.php">
+                    <a class="flex items-center bg-red-500 text-white font-bold py-2 px-4 rounded-full hover:bg-red-600 transition" href="../logout.php">
                         <i class="fas fa-sign-out-alt mr-2"></i> Logout
                     </a>
-                <?php } else { ?>
-                    <a class="flex items-center bg-red-500 text-white font-bold py-2 px-4 rounded-full hover:bg-red-600 transition" href="login.php">
-                        <i class="fas fa-sign-in-alt mr-2"></i> Login
-                    </a>
-                <?php } ?>
+                <?php }?>
             </div>
             </div>
     </section>
