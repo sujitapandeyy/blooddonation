@@ -17,18 +17,21 @@ $bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 
     <style>
-        .bg-img {
+        /* .bg-img {
             background-image: url('./img/bg.png');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             position: relative;
         }
-        
+         */
     </style>
 </head>
-<body class="font-Roboto">
-    <section class="max-w-7xl mx-auto mt-12 p-10">
+<body class="font-Roboto bg-white">
+<div class="">
+                    <img src="./img/footer.png" alt="Slide 2" class="w-full h-28 rounded">
+                </div>
+    <section class="max-w-7xl mx-auto mt-0 p-3">
         <h2 class="text-4xl font-bold text-center mb-12 text-red-600">Available Blood Types</h2>
         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
             <?php foreach ($bloodTypes as $index => $bloodType): ?>

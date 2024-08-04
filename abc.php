@@ -30,51 +30,47 @@
             transform: translateY(-50%);
         }
 
-        .carousel-button {
-            background-color: gray;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: background-color 0.3s;
+        /* Custom height for carousel */
+        .carousel-container {
+            height: 500px; /* Customize the height as needed */
         }
 
-        .carousel-button:hover {
-            background-color: rgba(0, 0, 0, 0.8);
+        .carousel-item img {
+            height: 55%; /* Ensure images fill the carousel container */
+            object-fit: cover; /* Cover ensures the image covers the container without distortion */
         }
     </style>
 </head>
-<body class="">
-    <div class="max-full mt-32 relative overflow-hidden px-1">
+<body>
+    <div class="max-full mt-32 relative overflow-hidden px-1 carousel-container">
         <div class="carousel flex relative">
             <div class="carousel-wrapper">
                 <!-- Duplicate images for seamless loop -->
                 <div class="carousel-item rounded">
-                    <img src="./img/slide1.png" alt="Slide 1" class="w-full h-96 rounded">
+                    <img src="./img/slide1.png" alt="Slide 1" class="w-full rounded">
                 </div>
                 <div class="carousel-item rounded">
-                    <img src="./img/land2.png" alt="Slide 2" class="w-full h-96 rounded">
+                    <img src="./img/land2.png" alt="Slide 2" class="w-full rounded">
                 </div>
                 <div class="carousel-item rounded">
-                    <img src="./img/slide4.png" alt="Slide 4" class="w-full h-96 rounded">
+                    <img src="./img/slide4.png" alt="Slide 4" class="w-full rounded">
                 </div>
                 <div class="carousel-item rounded">
-                    <img src="./img/slide1.png" alt="Slide 1" class="w-full h-96 rounded">
+                    <img src="./img/slide1.png" alt="Slide 1" class="w-full rounded">
                 </div>
                 <div class="carousel-item rounded">
-                    <img src="./img/land2.png" alt="Slide 2" class="w-full h-96 rounded">
+                    <img src="./img/land2.png" alt="Slide 2" class="w-full rounded">
                 </div>
                 <div class="carousel-item rounded">
-                    <img src="./img/slide4.png" alt="Slide 4" class="w-full h-96 rounded">
+                    <img src="./img/slide4.png" alt="Slide 4" class="w-full rounded">
                 </div>
             </div>
             <div class="carousel-controls">
-                <button id="prevButton" class="bg-gray-200 p-1 rounded">
-                    <i class="fas fa-chevron-left font-bold text-white text-lg"></i>
+                <button id="prevButton" class="bg-gray-200 p-1 text-top rounded mb-80 hover:bg-gray-600">
+                    <i class="fas fa-chevron-left font-bold text-white text-lg "></i>
                 </button>
-                <button id="nextButton" class="bg-gray-200 p-1 rounded">
-                    <i class="fas fa-chevron-right font-bold text-white text-lg"></i>
+                <button id="nextButton" class="bg-gray-200 p-1 mb-80 rounded hover:bg-gray-600 ">
+                    <i class="fas fa-chevron-right font-bold text-white text-lg "></i>
                 </button>
             </div>
         </div>
@@ -103,11 +99,6 @@
             }
             updateCarousel();
         }
-
-        // document.getElementById('prevButton').addEventListener('click', () => {
-        //     currentIndex = (currentIndex > 0) ? currentIndex - 1 : (totalItems / 2 - 1);
-        //     updateCarousel();
-        // });
 
         document.getElementById('nextButton').addEventListener('click', goToNext);
 
