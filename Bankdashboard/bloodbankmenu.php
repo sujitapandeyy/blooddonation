@@ -1,5 +1,6 @@
 <?php
 require ('../connection.php');
+
 session_start();
 
 // Check if user is logged in
@@ -21,8 +22,9 @@ if (!isset($_SESSION['bankemail'])) {
     <script src="https://kit.fontawesome.com/72f30a4d56.js" crossorigin="anonymous"></script>
     <style>
         .custom-shadow {
-            /* filter: drop-shadow(10px 10px 20px gray); */
-        }
+    filter: drop-shadow(10px 10px 10px rgba(255, 0, 0, 0.5)); /* Adjust color and opacity */
+}
+
     </style>
 </head>
 
@@ -30,17 +32,18 @@ if (!isset($_SESSION['bankemail'])) {
     <!-- Sidebar -->
     <section class="bg-gray-700 p-4 shadow-md fixed w-72 h-full flex flex-col">
         <div class="h-full flex flex-col">
-            <div class="mt-5 text-white text-3xl font-bold justify-center flex">
-                <h1>BloodBank </h1>
-                <!-- <img src="../img/logo11.png" alt="Logo"  class="w-60 rounded-full custom-shadow"> -->
+                <!-- <h1>BloodBank </h1> -->
+                <div class="custom-shadow">
+
                 <a href="index.php">
+                <img src="../img/ll.png" alt="Logo" class="custom-shadow mt-6 h-auto w-3/4">
                 </a>
-            </div>
+        </div>
             <nav class="justify-between">
                 <div class="mt-20 justify-between">
                     <ul>
                         <li class="hover:bg-gray-900 bg-gray-800 rounded-full m-1">
-                            <a href="dashboard.php"
+                            <a href="Bbankdashboard.php"
                                 class="flex items-center text-white font-semibold p-4 m rounded-lg transition">
                                 <i class="fas fa-tachometer-alt mr-3"></i> BloodBank Dashboard
                             </a>
@@ -48,7 +51,7 @@ if (!isset($_SESSION['bankemail'])) {
                         <li class="hover:bg-gray-900 bg-gray-800 rounded-full m-1">
                             <a href="addBlood.php"
                                 class="flex items-center text-white font-semibold p-4 rounded-lg hover:bg-cyan-700 transition">
-                                <i class="fas fa-users mr-3"></i> Add blood details
+                                <i class="fas fa-tint mr-3"></i> Add blood details
                             </a>
                         </li>
                         <li class="hover:bg-gray-900 bg-gray-800 rounded-full m-1">
@@ -57,8 +60,21 @@ if (!isset($_SESSION['bankemail'])) {
                                 <i class="fas fa-building mr-3"></i> view blood details
                             </a>
                         </li>
+                        <li class="hover:bg-gray-900 bg-gray-800 rounded-full m-1">
+                            <a href="addCampaigns.php"
+                                class="flex items-center text-white font-semibold p-4 rounded-lg hover:bg-cyan-700 transition">
+                                <i class="fas fa-flag mr-3"></i> Add campaigns
+                            </a>
+                        </li>
+                        <li class="hover:bg-gray-900 bg-gray-800 rounded-full m-1">
+                            <a href="viewCampaigns.php"
+                                class="flex items-center text-white font-semibold p-4 rounded-lg hover:bg-cyan-700 transition">
+                                <i class="fas fa-building mr-3"></i> view campaigns
+                            </a>
+                        </li>
+                     
                     </ul>
-                    <div class="flex flex-col items-center mt-80">
+                    <div class="flex flex-col items-center mt-48">
                         <?php if (isset($_SESSION['bankemail'])) { ?>
                             <a class="flex items-center bg-red-500 text-white font-bold px-5 py-3 rounded-full hover:bg-red-600 transition"
                                 href="../logout.php">

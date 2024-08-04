@@ -30,13 +30,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $bloodqty = $_POST['bloodqty'];
     $collection = $_POST['collection'];
 
-    $sql = "INSERT INTO blood_details (name, gender, dob, weight, bloodgroup, address, contact, bloodqty, collection, bloodbank_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // Calculate expiry date (42 days after collection date)
+    $collectionDate = new DateTime($collection);
+    $collectionDate->add(new DateInterval('P42D'));
+    $expire = $collectionDate->format('Y-m-d');
+
+    $sql = "INSERT INTO blood_details (name, gender, dob, weight, bloodgroup, address, contact, bloodqty, collection,expire, bloodbank_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?)";
     $stmt = $con->prepare($sql);
-    $stmt->bind_param("sssssssisi", $name, $gender, $dob, $weight, $bloodgroup, $address, $contact, $bloodqty, $collection, $bloodbank_id);
+    $stmt->bind_param("sssssssissi", $name, $gender, $dob, $weight, $bloodgroup, $address, $contact, $bloodqty, $collection, $expire, $bloodbank_id);
 
     if ($stmt->execute()) {
         header("Location: addBlood.php?error=New record created successfully!!");
-        echo "New record created successfully";
+        echo "New record created successfully!!";
     } else {
         // echo "Error: " . $sql . "<br>" . $con->error;
         header("Location: addBlood.php?error= failed try again");
@@ -66,104 +71,116 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php @include ("bloodbankmenu.php"); ?>
     <section class="ml-72 p-8 max-w-4xl">
 
-                        <div class="bg-white p-8 rounded-lg shadow-lg">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <h1 class="page-header text-3xl font-bold text-center justify-center mb-4">Add Blood
-                                        Details</h1>
-                                </div>
-                            </div>
-                            <?php if (isset($_GET['error'])) { ?>
-                               <p class="text-red-500 mb-4 text-center">*<?php echo htmlspecialchars($_GET['error']); ?></p>
-                               <?php } ?> 
-                            <form role="form" action="" method="post">
-                                <div class="mb-4">
-                                    <label class="block text-gray-700 font-bold mb-2" for="name">Enter Donor
-                                        Name</label>
-                                    <input
-                                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
-                                        type="text" placeholder="Donor name" name="name" required>
-                                </div>
+        <div class="bg-white p-8 rounded-lg shadow-lg">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header text-3xl font-bold text-center justify-center mb-4">Add Blood
+                        Details</h1>
+                </div>
+            </div>
+            <!-- <?php if (isset($_GET['error'])) { ?>
+                <p class="bg-red-500 mb-4 text-center rounded">*<?php echo htmlspecialchars($_GET['error']); ?></p>
+            <?php } ?> -->
+            <?php if (isset($_GET['error'])) : ?>
+                        <?php
+                        $errorMessage = $_GET['error'];
+                        $errorClass = ($errorMessage === 'New record created successfully!!') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+                        ?>
+                        <div class="w-full mb-6 p-4 rounded-md text-center font-semibold <?php echo $errorClass; ?>">
+                            <p><?php echo $errorMessage; ?></p>
+                        </div>
+                    <?php endif; ?>
+            <form role="form" action="" method="post">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="name">Enter Donor
+                        Name</label>
+                    <input
+                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
+                        type="text" placeholder="Donor name" name="name" required>
+                </div>
 
-                                <div class="mb-4">
-                                    <label class="block text-gray-700 font-bold mb-2" for="gender">Gender </label>
-                                    <input
-                                    class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
-                                    type="text" placeholder="Male/Female/other" name="gender" required>
-                                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="gender">Gender </label>
+                    <input
+                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
+                        type="text" placeholder="Male/Female/other" name="gender" required>
+                </div>
 
-                                <div class="mb-4">
-                                    <label class="block text-gray-700 font-bold mb-2" for="dob">Enter Date of
-                                        birth</label>
-                                    <input
-                                    class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
-                                    type="date" name="dob" required>
-                                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="dob">Enter Date of
+                        birth</label>
+                    <input
+                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
+                        type="date" name="dob" required>
+                </div>
 
-                                <div class="mb-4">
-                                    <label class="block text-gray-700 font-bold mb-2" for="weight">Enter Weight</label>
-                                    <input
-                                    class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
-                                    type="number" name="weight" required>
-                                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="weight">Enter Weight</label>
+                    <input
+                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
+                        type="number" name="weight" required>
+                </div>
 
-                                <div class="mb-4">
-                                    <label class="block text-gray-700 font-bold mb-2" for="bloodgroup">Select Blood
-                                        Group</label>
-                                    <select name="bloodgroup" id="donorBloodgroup" required
-                                    class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline">
-                                    <option value="" disabled selected>Select Blood Group</option>
-                                        <option value="A+">A+</option>
-                                        <option value="A-">A-</option>
-                                        <option value="B+">B+</option>
-                                        <option value="B-">B-</option>
-                                        <option value="AB+">AB+</option>
-                                        <option value="AB-">AB-</option>
-                                        <option value="O+">O+</option>
-                                        <option value="O-">O-</option>
-                                    </select>
-                                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="bloodgroup">Select Blood
+                        Group</label>
+                    <select name="bloodgroup" id="donorBloodgroup" required
+                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline">
+                        <option value="" disabled selected>Select Blood Group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
 
-                                <div class="mb-4">
-                                    <label class="block text-gray-700 font-bold mb-2" for="bloodqty">Blood
-                                        Quantity</label>
-                                    <input
-                                    class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
-                                    type="number" name="bloodqty" required>
-                                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="bloodqty">Blood
+                        Quantity</label>
+                    <input
+                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
+                        type="number" name="bloodqty" required>
+                </div>
 
-                                <div class="mb-4">
-                                    <label class="block text-gray-700 font-bold mb-2" for="address">Enter
-                                        Address</label>
-                                    <input
-                                    class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
-                                    type="text" name="address" required>
-                                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="address">Enter
+                        Address</label>
+                    <input
+                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
+                        type="text" name="address" required>
+                </div>
 
-                                <div class="mb-4">
-                                    <label class="block text-gray-700 font-bold mb-2" for="contact">Enter Contact
-                                        Number</label>
-                                    <input
-                                    class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
-                                    type="number" name="contact" required>
-                                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="contact">Enter Contact
+                        Number</label>
+                    <input
+                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
+                        type="number" name="contact" required>
+                </div>
 
-                               
 
-                                <div class="mb-4">
-                                    <label class="block text-gray-700 font-bold mb-2" for="collection">Collection
-                                        Date</label>
-                                    <input
-                                    class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
-                                    type="date" name="collection" required>
-                                </div>
 
-                                <div class="flex items-center justify-center ">
-                                    <button type="submit"
-                                        class="px-20 rounded-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 focus:outline-none focus:shadow-outline">Submit</button>
-                                </div>
-                            </form>
-                            </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-bold mb-2" for="collection">Collection
+                        Date</label>
+                    <input
+                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
+                        type="date" name="collection" required>
+                </div>
+                <div class="">
+                    <input type="hidden" name="expire" required>
+                </div>
+
+                <div class="flex items-center justify-center ">
+                    <button type="submit"
+                        class="px-20 rounded-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 focus:outline-none focus:shadow-outline">Submit</button>
+                </div>
+            </form>
+        </div>
     </section>
 </body>
 
