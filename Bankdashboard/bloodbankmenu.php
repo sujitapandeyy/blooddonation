@@ -21,9 +21,9 @@ if (!isset($_SESSION['bankemail'])) {
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/72f30a4d56.js" crossorigin="anonymous"></script>
     <style>
-        .custom-shadow {
-    filter: drop-shadow(10px 10px 10px rgba(255, 0, 0, 0.5)); /* Adjust color and opacity */
-}
+        /* .custom-shadow {
+    filter: drop-shadow(10px 10px 10px rgba(255, 0, 0, 0.5)); Adjust color and opacity */
+/* } */
 
     </style>
 </head>
@@ -70,6 +70,12 @@ if (!isset($_SESSION['bankemail'])) {
                             <a href="viewCampaigns.php"
                                 class="flex items-center text-white font-semibold p-4 rounded-lg hover:bg-cyan-700 transition">
                                 <i class="fas fa-building mr-3"></i> view campaigns
+                            </a>
+                        </li>
+                        <li class="hover:bg-gray-900 bg-gray-800 rounded-full m-1">
+                            <a href="ViewDonationRequest.php"
+                                class="flex items-center text-white font-semibold p-4 rounded-lg hover:bg-cyan-700 transition">
+                                <i class="fas fa-building mr-3"></i> view Donation Request
                             </a>
                         </li>
                      

@@ -2,13 +2,11 @@
 require ('../connection.php');
 session_start();
 
-// Check if user is logged in
 if (!isset($_SESSION['bankemail'])) {
     header("Location: login.php?error=Login first");
-    exit(); // Ensure script execution stops after redirection
+    exit(); 
 }
 
-// Get the blood bank ID from the session
 $bankemail = $_SESSION['bankemail'];
 $sql = "SELECT id FROM users WHERE email = ?";
 $stmt = $con->prepare($sql);
@@ -18,7 +16,6 @@ $stmt->bind_result($bloodbank_id);
 $stmt->fetch();
 $stmt->close();
 
-// Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $gender = $_POST['gender'];

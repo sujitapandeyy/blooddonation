@@ -5,7 +5,7 @@ session_start();
 // Check if user is logged in
 if (!isset($_SESSION['bankemail'])) {
     header("Location: login.php?error=Login first");
-    exit(); // Ensure script execution stops after redirection
+    exit();
 }
 
 // Get the blood bank ID from the users table
@@ -24,25 +24,45 @@ $stmt = $con->prepare($sql);
 $stmt->bind_param('i', $bankId);
 $stmt->execute();
 $result = $stmt->get_result();
+
+
+
+if (isset($_GET['id'])) {
+    $delete_id = $_GET['id'];
+
+    // Prepare and execute delete query
+    $stmt = $con->prepare("DELETE FROM blood_details WHERE id = ?");
+    $stmt->bind_param('i', $delete_id);
+
+    if ($stmt->execute()) {
+        // Redirect with success message
+        header("Location: viewBloodDetail.php?success=Detail deleted successfully!");
+    } else {
+        // Redirect with error message
+        header("Location: viewBloodDetail.php?error=Failed to delete detail!");
+    }
+} else {
+    // Redirect if ID is not set
+    // header("Location: viewBloodDetail.php?error=No detail selected for deletion!");
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Blood Details</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-
 <body class="bg-gray-200">
 <?php @include("bloodbankmenu.php"); ?>
 <section class="ml-72 p-8">
     <h1 class="text-3xl font-bold mb-8">Available Blood Details</h1>
     <table class="min-w-full bg-white border-collapse border border-gray-200">
         <thead>
-            <tr class="bg-gray-700  text-white">
-                <!-- <th class="px-4 py-2 border border-gray-300">ID</th> -->
+            <tr class="bg-gray-700 text-white">
                 <th class="px-4 py-2 border border-gray-300">Blood Group</th>
                 <th class="px-4 py-2 border border-gray-300">Name</th>
                 <th class="px-4 py-2 border border-gray-300">Gender</th>
@@ -53,12 +73,12 @@ $result = $stmt->get_result();
                 <th class="px-4 py-2 border border-gray-300">Blood Quantity</th>
                 <th class="px-4 py-2 border border-gray-300">Collection Date</th>
                 <th class="px-4 py-2 border border-gray-300">Expire Date</th>
+                <th class="px-4 py-2 border border-gray-300">Actions</th>
             </tr>
         </thead>
         <tbody>
             <?php while ($row = $result->fetch_assoc()) { ?>
                 <tr>
-                    <!-- <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['id']); ?></td> -->
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['bloodgroup']); ?></td>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['name']); ?></td>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['gender']); ?></td>
@@ -69,11 +89,29 @@ $result = $stmt->get_result();
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['bloodqty']); ?></td>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['collection']); ?></td>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['expire']); ?></td>
+                    <td class="px-4 py-2 border border-gray-300">
+                        <a href="viewBloodDetail.php?id=<?php echo $row['id']; ?>" class="text-blue-500 hover:text-blue-700">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="viewBloodDetail.php?id=<?php echo $row['id']; ?>" class="delete-btn text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
                 </tr>
             <?php } ?>
         </tbody>
     </table>
-    </section>
-</body>
+</section>
 
+<!-- Delete Confirmation Box -->
+<div class="delete-box fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white p-5 rounded-lg text-center">
+        <p>Are you sure you want to delete?</p>
+        <button class="confirm-btn bg-red-600 text-white rounded hover:bg-red-500 px-4 py-1 m-2">Delete</button>
+        <button class="cancel-btn bg-gray-400 text-white rounded hover:bg-gray-500 px-4 py-1 m-2">Cancel</button>
+    </div>
+</div>  
+
+</body>
+<script src="../javascript/delete.js"></script>
 </html>

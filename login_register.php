@@ -36,12 +36,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $_SESSION['Aloggedin'] = true;
                         $_SESSION['Adminname'] = $result_fetch['fullname'];
                         $_SESSION['Adminemail'] = $result_fetch['email'];
-                        header("Location: AdminDashboard\dashboard.php");
+                        header("Location: AdminDashboard\admindashboard.php");
                     } else if (strtolower($result_fetch['user_type']) == "donor") {
                         $_SESSION['Dloggedin'] = true;
                         $_SESSION['donorname'] = $result_fetch['fullname'];
                         $_SESSION['donoremail'] = $result_fetch['email'];
-                        header("Location: donordashboard.php");
+                        header("Location: Donordashboard\dashboard.php");
                     } else if (strtolower($result_fetch['user_type']) == "bloodbank") {
                         $_SESSION['Bloggedin'] = true;
                         $_SESSION['bankname'] = $result_fetch['fullname'];
