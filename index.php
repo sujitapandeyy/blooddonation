@@ -64,6 +64,7 @@
     </main>
     <?php @include 'bloodtype.php'; ?>
     <?php @include 'bloodbanks.php'; ?>
+    <?php @include 'all_Campain.php'; ?>
     <?php @include 'footor.php'; ?>
     <script src="javascript/geolocation.js" defer></script>
 

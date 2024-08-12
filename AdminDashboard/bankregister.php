@@ -68,7 +68,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
 </head>
 
 <body class="bg-gray-100">
-    <?php @include("dashboard.php") ?>
     <section id="popup" class="flex justify-center h-auto bg-gray-100">
         <div class="flex w-full max-w-xl bg-white shadow-lg rounded-lg overflow-hidden">
             <div id="bloodBankRegistrationForm" class="w-full p-6">
