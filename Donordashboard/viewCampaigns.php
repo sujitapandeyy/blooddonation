@@ -4,7 +4,7 @@ session_start();
 
 // Check if donor is logged in
 if (!isset($_SESSION['donoremail'])) {
-    header("Location: login.php?error=Login first");
+    header("Location: ../login.php?error=Login first");
     exit();
 }
 // Fetch all campaigns

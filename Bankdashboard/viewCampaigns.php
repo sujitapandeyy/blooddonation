@@ -3,7 +3,7 @@ require ('../connection.php');
 session_start();
 
 if (!isset($_SESSION['bankemail'])) {
-    header("Location: login.php?error=Login first");
+    header("Location: ../login.php?error=Login first");
     exit(); 
 }
 
@@ -32,7 +32,7 @@ $result = $stmt->get_result();
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
-<body class="bg-gray-200">
+<body class="bg-white">
     <?php @include ("bloodbankmenu.php"); ?>
     <section class="ml-72 p-8">
         <h1 class="text-3xl font-bold mb-8">View Campaigns</h1>

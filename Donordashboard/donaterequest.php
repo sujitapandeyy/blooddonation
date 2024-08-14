@@ -4,7 +4,7 @@ session_start();
 
 // Check if donor is logged in
 if (!isset($_SESSION['donoremail'])) {
-    header("Location: login.php?error=Login first");
+    header("Location: ../login.php?error=Login first");
     exit();
 }
 
@@ -64,7 +64,7 @@ $previous_requests = $query->get_result();
     <script src="https://kit.fontawesome.com/72f30a4d56.js" crossorigin="anonymous"></script>
 
 </head>
-<body class="bg-gray-100">
+<body class="">
     <!-- <?php include("donorMenu.php"); ?> -->
 
     <main class="ml-64 py-2 px-8">

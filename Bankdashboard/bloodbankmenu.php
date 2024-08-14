@@ -5,7 +5,7 @@ session_start();
 
 // Check if user is logged in
 if (!isset($_SESSION['bankemail'])) {
-    header("Location: login.php?error=Login first");
+    header("Location: ../login.php?error=Login first");
     exit(); // Ensure script execution stops after redirection
 }
 ?>
@@ -28,59 +28,74 @@ if (!isset($_SESSION['bankemail'])) {
     </style>
 </head>
 
-<body class="bg-gray-200">
+<body class="bg-gray-100 font-sans antialiased">
     <!-- Sidebar -->
-    <section class="bg-gray-700 p-4 shadow-md fixed w-72 h-full flex flex-col">
-        <div class="h-full flex flex-col">
-                <!-- <h1>BloodBank </h1> -->
-                <div class="custom-shadow">
-
-                <a href="index.php">
-                <img src="../img/ll.png" alt="Logo" class="custom-shadow mt-6 h-auto w-3/4">
-                </a>
+    <aside class="bg-white shadow-md fixed inset-y-0 left-0 w-64 flex flex-col">
+    <div class="flex items-center justify-center mt-6 mb-4">
+            <a href="index.php">
+                <img src="../img/logo11.png" alt="Logo" class="h-16 w-auto">
+            </a>
         </div>
-            <nav class="justify-between">
-                <div class="mt-20 justify-between">
-                    <ul>
-                        <li class="hover:bg-gray-900 bg-gray-800 rounded-full m-1">
-                            <a href="Bbankdashboard.php"
-                                class="flex items-center text-white font-semibold p-4 m rounded-lg transition">
-                                <i class="fas fa-tachometer-alt mr-3"></i> BloodBank Dashboard
-                            </a>
-                        </li>
-                        <li class="hover:bg-gray-900 bg-gray-800 rounded-full m-1">
-                            <a href="addBlood.php"
-                                class="flex items-center text-white font-semibold p-4 rounded-lg hover:bg-cyan-700 transition">
-                                <i class="fas fa-tint mr-3"></i> Add blood details
-                            </a>
-                        </li>
-                        <li class="hover:bg-gray-900 bg-gray-800 rounded-full m-1">
-                            <a href="viewBloodDetail.php"
-                                class="flex items-center text-white font-semibold p-4 rounded-lg hover:bg-cyan-700 transition">
-                                <i class="fas fa-building mr-3"></i> view blood details
-                            </a>
-                        </li>
-                        <li class="hover:bg-gray-900 bg-gray-800 rounded-full m-1">
-                            <a href="addCampaigns.php"
-                                class="flex items-center text-white font-semibold p-4 rounded-lg hover:bg-cyan-700 transition">
-                                <i class="fas fa-flag mr-3"></i> Add campaigns
-                            </a>
-                        </li>
-                        <li class="hover:bg-gray-900 bg-gray-800 rounded-full m-1">
-                            <a href="viewCampaigns.php"
-                                class="flex items-center text-white font-semibold p-4 rounded-lg hover:bg-cyan-700 transition">
-                                <i class="fas fa-building mr-3"></i> view campaigns
-                            </a>
-                        </li>
-                        <li class="hover:bg-gray-900 bg-gray-800 rounded-full m-1">
-                            <a href="ViewDonationRequest.php"
-                                class="flex items-center text-white font-semibold p-4 rounded-lg hover:bg-cyan-700 transition">
-                                <i class="fas fa-building mr-3"></i> view Donation Request
-                            </a>
-                        </li>
-                     
-                    </ul>
-                    <div class="flex flex-col items-center mt-48">
+        <nav class="flex-1">
+                <div class=" justify-between">
+                <div class="px-4 py-5 border-b border-gray-300">
+                <h2 class="text-gray-600 text-sm font-semibold mb-2">BloodBank Dashboard</h2>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="Bbankdashboard.php"
+                           class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition duration-150">
+                            <i class="fas fa-tint mr-3"></i> Dashboard
+                        </a>
+                    </li>
+                </ul>
+            </div>
+                <div class="px-4 py-5 border-b border-gray-300">
+                <h2 class="text-gray-600 text-sm font-semibold mb-2">blood details</h2>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="addBlood.php"
+                           class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition duration-150">
+                            <i class="fas fa-tint mr-3"></i>Add blood details
+                        </a>
+                    </li>
+                    <li>
+                        <a href="viewBloodDetail.php"
+                           class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition duration-150">
+                            <i class="fas fa-building mr-3"></i> view blood details
+                        </a>
+                    </li>
+                </ul>
+            </div>
+                <div class="px-4 py-5 border-b border-gray-300">
+                <h2 class="text-gray-600 text-sm font-semibold mb-2">Campaign details</h2>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="addCampaigns.php"
+                           class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition duration-150">
+                            <i class="fas fa-tint mr-3"></i>Add campaign details
+                        </a>
+                    </li>
+                    <li>
+                        <a href="viewCampaigns.php"
+                           class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition duration-150">
+                            <i class="fas fa-building mr-3"></i> view campaigns details
+                        </a>
+                    </li>
+                </ul>
+            </div>
+                <div class="px-4 py-5 border-b border-gray-300">
+                <h2 class="text-gray-600 text-sm font-semibold mb-2">Donation request</h2>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="ViewDonationRequest.php"
+                           class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition duration-150">
+                            <i class="fas fa-tint mr-3"></i>view Donation Request
+                        </a>
+                    </li>
+                   
+                </ul>
+            </div>
+                    <div class="flex flex-col items-center mt-16">
                         <?php if (isset($_SESSION['bankemail'])) { ?>
                             <a class="flex items-center bg-red-500 text-white font-bold px-5 py-3 rounded-full hover:bg-red-600 transition"
                                 href="../logout.php">
@@ -91,11 +106,11 @@ if (!isset($_SESSION['bankemail'])) {
                 </div>
             </nav>
         </div>
-    </section>
+                        </aside>
     <section class="ml-72 p-8">
-        <div class="bg-gray-800 p-4 rounded-lg shadow-lg flex items-center justify-between">
-            <h1 class="text-white text-3xl flex items-center">
-                Welcome to RaktaSewa<span class="ml-2"><?php echo htmlspecialchars($_SESSION['bankname']); ?></span>
+        <div class="bg-white p-4 rounded-lg shadow-lg flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-gray-800">
+                Welcome to RaktaSewa &nbsp;<span class="text-red-600"><?php echo htmlspecialchars($_SESSION['bankname']); ?></span>
             </h1>
             <a href="manage-donors.php"
                 class="text-white font-semibold p-4 rounded-lg hover:bg-cyan-700 transition flex items-center">
