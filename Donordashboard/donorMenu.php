@@ -5,8 +5,8 @@ session_start();
 
 // Check if user is logged in
 if (!isset($_SESSION['donoremail'])) {
-    header("Location: login.php?error=Login first");
-    exit(); // Ensure script execution stops after redirection
+    header("Location: ../login.php?error=Login first");
+    exit(); 
 }
 ?>
 

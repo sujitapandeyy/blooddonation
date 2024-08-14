@@ -4,7 +4,7 @@ session_start();
 
 // Check if user is logged in
 if (!isset($_SESSION['Adminemail'])) {
-    header("Location: login.php?error=Login first");
+    header("Location: ../login.php?error=Login first");
     exit(); // Ensure script execution stops after redirection
 }
 ?>

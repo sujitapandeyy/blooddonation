@@ -2,10 +2,10 @@
 require('connection.php');
 session_start();
 
-if (!isset($_SESSION['bankemail'])) {
-    header("Location: login.php?error=Login first");
-    exit(); 
-}
+// if (!isset($_SESSION['bankemail'])) {
+//     header("Location: login.php?error=Login first");
+//     exit(); 
+// }
 
 if (!isset($_GET['id'])) {
     die("No blood bank selected.");

@@ -32,26 +32,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($result && $result->num_rows == 1) {
                 $result_fetch = $result->fetch_assoc();
                 if (password_verify($password, $result_fetch['password'])) {
-                    if (strtolower($result_fetch['user_type']) == "admin") {
-                        $_SESSION['Aloggedin'] = true;
-                        $_SESSION['Adminname'] = $result_fetch['fullname'];
-                        $_SESSION['Adminemail'] = $result_fetch['email'];
-                        header("Location: AdminDashboard\admindashboard.php");
-                    } else if (strtolower($result_fetch['user_type']) == "donor") {
-                        $_SESSION['Dloggedin'] = true;
-                        $_SESSION['donorname'] = $result_fetch['fullname'];
-                        $_SESSION['donoremail'] = $result_fetch['email'];
-                        header("Location: Donordashboard\dashboard.php");
-                    } else if (strtolower($result_fetch['user_type']) == "bloodbank") {
-                        $_SESSION['Bloggedin'] = true;
-                        $_SESSION['bankname'] = $result_fetch['fullname'];
-                        $_SESSION['bankemail'] = $result_fetch['email'];
-                        header("Location: Bankdashboard\Bbankdashboard.php");
-                    } else {
-                        $_SESSION['Uloggedin'] = true;
-                        $_SESSION['username'] = $result_fetch['fullname'];
-                        $_SESSION['useremail'] = $result_fetch['email'];
-                        header("Location: index.php");
+                    switch (strtolower($result_fetch['user_type'])) {
+                        case 'admin':
+                            $_SESSION['Aloggedin'] = true;
+                            $_SESSION['Adminname'] = $result_fetch['fullname'];
+                            $_SESSION['Adminemail'] = $result_fetch['email'];
+                            header("Location: AdminDashboard/admindashboard.php");
+                            break;
+                        case 'donor':
+                            $_SESSION['Dloggedin'] = true;
+                            $_SESSION['donorname'] = $result_fetch['fullname'];
+                            $_SESSION['donoremail'] = $result_fetch['email'];
+                            header("Location: Donordashboard/dashboard.php");
+                            break;
+                        case 'bloodbank':
+                            $_SESSION['Bloggedin'] = true;
+                            $_SESSION['bankname'] = $result_fetch['fullname'];
+                            $_SESSION['bankemail'] = $result_fetch['email'];
+                            header("Location: Bankdashboard/Bbankdashboard.php");
+                            break;
+                        default:
+                            $_SESSION['Uloggedin'] = true;
+                            $_SESSION['username'] = $result_fetch['fullname'];
+                            $_SESSION['useremail'] = $result_fetch['email'];
+                            header("Location: index.php");
+                            break;
                     }
                     exit();
                 } else {
@@ -61,12 +66,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else {
                 // Debugging: Log error message
                 error_log("Login failed - No matching user found. Email: $email, User Type: $user_type");
-                header("Location: login.php?error=Email not registered for this user typeEmail: $email, User Type: $user_type" );
+                header("Location: login.php?error=Email not registered for this user type");
                 exit();
             }
         }
     }
-
 
     // Handle registration
     if (isset($_POST['register'])) {
@@ -78,17 +82,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $address = validate($_POST['address']);
         $latitude = validate($_POST['latitude']);
         $longitude = validate($_POST['longitude']);
+        $dob = validate($_POST['dob']);
+        $weight = validate($_POST['weight']);
+        $gender = validate($_POST['gender']);
+        $height = validate($_POST['height']);
+        $last_donation_date = !empty($_POST['lastDonationDate']) ? validate($_POST['lastDonationDate']) : NULL;
         $user_type = validate($_POST['user_type']);
 
-        if (empty($fullname) || empty($email) || empty($password) || empty($confirm_password) || empty($phone) || empty($address) || empty($user_type)) {
+        if (empty($fullname) || empty($email) || empty($password) || empty($confirm_password) || empty($phone) || empty($address) || empty($dob) || empty($weight) || empty($gender) || empty($height) || empty($user_type)) {
             header("Location: register.php?error=Please fill all the fields!!");
             exit();
         
-        }else if(empty($latitude) || empty($longitude)){
+        } else if(empty($latitude) || empty($longitude)){
             header("Location: register.php?error=Enter correct address ");
             exit();
         
-        }elseif (!preg_match('/^[a-zA-Z]+(?: [a-zA-Z]+)*$/', $fullname)) {
+        } elseif (!preg_match('/^[a-zA-Z]+(?: [a-zA-Z]+)*$/', $fullname)) {
             header("Location: register.php?error=Name must contain only letters");
             exit();
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -96,6 +105,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         } elseif ($password != $confirm_password) {
             header("Location: register.php?error=Password and confirm password do not match!!");
+            exit();
+        } elseif (!preg_match('/^[0-9]+$/', $weight) || !preg_match('/^[0-9]+$/', $height)) {
+            header("Location: register.php?error=Weight and Height must be numeric values");
             exit();
         } else {
             // Check if the email already exists for the same user type
@@ -111,19 +123,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
                 if ($user_type == 'Donor') {
-                    $donor_blood_type = validate($_POST['donor_blood_type']);
-                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, user_type, latitude,longitude,donor_blood_type) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)");
-                    $sql->bind_param("sssssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type,$latitude,$longitude, $donor_blood_type);
+                    $donor_blood_type = validate($_POST['bloodgroup']);
+                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, user_type, latitude, longitude, donor_blood_type, dob, weight, gender, height, last_donation_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $sql->bind_param("ssssssssssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type, $latitude, $longitude, $donor_blood_type, $dob, $weight, $gender, $height, $last_donation_date);
                 } elseif ($user_type == 'BloodBank') {
-                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address,latitude,longitude, user_type) VALUES (?, ?, ?, ?, ?, ?,?,?)");
-                    $sql->bind_param("ssssssss", $fullname, $email, $hashed_password, $phone, $address,$latitude,$longitude, $user_type);
+                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, latitude, longitude, user_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                    $sql->bind_param("ssssssss", $fullname, $email, $hashed_password, $phone, $address, $latitude, $longitude, $user_type);
                 } elseif ($user_type == 'Admin') {
                     $admin_code = validate($_POST['admin_code']);
                     $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, user_type) VALUES (?, ?, ?, ?, ?, ?)");
                     $sql->bind_param("ssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type);
                 } else {
-                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address,latitude,longitude, user_type) VALUES (?, ?, ?, ?,?,?, ?, ?)");
-                    $sql->bind_param("ssssssss", $fullname, $email, $hashed_password, $phone, $address,$latitude,$longitude, $user_type);
+                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, latitude, longitude, user_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                    $sql->bind_param("ssssssss", $fullname, $email, $hashed_password, $phone, $address, $latitude, $longitude, $user_type);
                 }
 
                 if ($sql->execute()) {

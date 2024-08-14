@@ -51,7 +51,7 @@ $result = $stmt->get_result();
                 title: 'Total Available Blood',
                 is3D: true,
                 pieHole: 0.0,
-                backgroundColor: '#e5e7eb', 
+                backgroundColor: '#fffff', 
                 // chartArea: {
                 //     backgroundColor: '#e5e7eb' // Set the chart area background to white
                 // }
@@ -63,9 +63,9 @@ $result = $stmt->get_result();
     </script>
 </head>
 
-<body class="bg-gray-200">
+<body class="bg-white">
     <!-- <?php include("bloodbankmenu.php"); ?> -->
-    <div class="max-w-lg mx-auto p-4">
+    <div class="max-w-lg mx-auto p-1">
         <h2 class="text-2xl font-bold mb-4 text-left">Blood Type Distribution</h2>
         <div id="piechart" class="w-full h-64"></div>
     </div>
