@@ -29,11 +29,12 @@ if (!$donor) {
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $blood_bank_id = intval($_POST['blood_bank']);
+    $quantity = intval($_POST['quantity']);
     $request_message = htmlspecialchars(trim($_POST['message']));
 
     // Insert donation request into the database
-    $query = $con->prepare("INSERT INTO donation_requests (donor_email, blood_bank_id, message, request_date) VALUES (?, ?, ?, NOW())");
-    $query->bind_param("sis", $donor_email, $blood_bank_id, $request_message);
+    $query = $con->prepare("INSERT INTO donation_requests (donor_email, blood_bank_id, quantity, message, request_date) VALUES (?, ?, ?, ?, NOW())");
+    $query->bind_param("siss", $donor_email, $blood_bank_id, $quantity, $request_message);
 
     if ($query->execute()) {
         header("Location: donateRequest.php?success=Request submitted successfully!");
@@ -45,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // Fetch previous donation requests
-$query = $con->prepare("SELECT dr.id, dr.message,dr.request_date, dr.status, dr.appointment_time, bb.fullname as blood_bank 
+$query = $con->prepare("SELECT dr.id, dr.quantity, dr.message, dr.request_date, dr.status, dr.appointment_time, bb.fullname as blood_bank 
                         FROM donation_requests dr 
                         JOIN users bb ON dr.blood_bank_id = bb.id 
                         WHERE dr.donor_email = ? 
@@ -62,7 +63,6 @@ $previous_requests = $query->get_result();
     <title>Donate Request</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <script src="https://kit.fontawesome.com/72f30a4d56.js" crossorigin="anonymous"></script>
-
 </head>
 <body class="">
     <!-- <?php include("donorMenu.php"); ?> -->
@@ -91,6 +91,10 @@ $previous_requests = $query->get_result();
                     </select>
                 </div>
                 <div class="mb-4">
+                    <label for="quantity" class="block text-gray-700">Quantity (ml)</label>
+                    <input type="number" id="quantity" name="quantity" min="1" class="w-full p-2 border border-gray-300 rounded" required>
+                </div>
+                <div class="mb-4">
                     <label for="message" class="block text-gray-700">Message</label>
                     <textarea id="message" name="message" rows="4" class="w-full p-2 border border-gray-300 rounded"></textarea>
                 </div>
@@ -106,6 +110,7 @@ $previous_requests = $query->get_result();
                     <tr class="bg-gray-500 text-white">
                         <th class="px-4 py-2 border border-gray-300">Request Date</th>
                         <th class="px-4 py-2 border border-gray-300">Blood Bank</th>
+                        <th class="px-4 py-2 border border-gray-300">Quantity (ml)</th>
                         <th class="px-4 py-2 border border-gray-300">Message</th>
                         <th class="px-4 py-2 border border-gray-300">Status</th>
                         <th class="px-4 py-2 border border-gray-300">Appointment Time</th>
@@ -113,9 +118,10 @@ $previous_requests = $query->get_result();
                 </thead>
                 <tbody>
                     <?php while ($request = $previous_requests->fetch_assoc()): ?>
-                        <tr>_
+                        <tr>
                             <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['request_date']); ?></td>
                             <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['blood_bank']); ?></td>
+                            <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['quantity']); ?></td>
                             <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['message']); ?></td>
                             <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['status']); ?></td>
                             <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['appointment_time']); ?></td>

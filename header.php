@@ -1,6 +1,6 @@
 <?php
 require('connection.php');
-// session_start();?>
+session_start();?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -28,9 +28,12 @@ require('connection.php');
         </a>
         <div class="flex items-center font-bold">
             <?php if (isset($_SESSION['Uloggedin']) && $_SESSION['Uloggedin'] === true) { ?>
-                <a class="flex items-center bg-red-500 text-white font-bold py-2 px-4 rounded-full hover:bg-red-600 transition" href="logout.php">
+                <a class="flex mr-2 items-center bg-red-500 text-white font-bold py-2 px-4 rounded-full hover:bg-red-600 transition" href="logout.php">
                     <i class="fas fa-sign-out-alt mr-2"></i> Logout
                 </a>
+                <!-- <a class="flex items-center bg-red-500 text-white font-bold py-2 px-4 rounded-full hover:bg-red-600 transition" href="userhistory.php">
+                    <i class="fas fa-sign-out-alt mr-2"></i> History
+                </a> -->
                 <!-- <span class="ml-4"><?php echo htmlspecialchars($_SESSION['useremail']); ?></span> -->
             <?php } else { ?>
                 <a class="flex items-center bg-red-500 text-white font-bold py-2 px-4 rounded-full hover:bg-red-600 transition" href="login.php">

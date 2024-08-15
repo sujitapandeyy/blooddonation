@@ -59,6 +59,7 @@ $requests = $stmt->get_result();
             <thead>
                 <tr class="bg-gray-700 text-white">
                     <th class="px-4 py-2 border border-gray-300">Blood Type</th>
+                    <th class="px-4 py-2 border border-gray-300">Quantity</th>
                     <th class="px-4 py-2 border border-gray-300">Donor Name</th>
                     <th class="px-4 py-2 border border-gray-300">Donor Email</th>
                     <th class="px-4 py-2 border border-gray-300">Donor Phone</th>
@@ -74,6 +75,7 @@ $requests = $stmt->get_result();
                 <?php while ($row = $requests->fetch_assoc()): ?>
                     <tr>
                         <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['donor_blood_type']); ?></td>
+                        <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['quantity']); ?></td>
                         <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['donor_name']); ?></td>
                         <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['donor_email']); ?></td>
                         <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['donor_phone']); ?></td>
