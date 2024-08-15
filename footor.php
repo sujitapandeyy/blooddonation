@@ -18,7 +18,7 @@
         <div class=" mx-auto p-10 flex flex-col md:flex-row gap-10">
             <!-- About Us -->
             <div class="">
-                        <img src="./img/lo.png" alt="Slide 2" class="w-full h-auto rounded">
+                        <!-- <img src="./img/lo.png" alt="Slide 2" class="w-full h-auto rounded"> -->
                     </div>
             <div class="md:w-1/3 mb-8">
                 <h2 class="text-2xl font-bold mb-4">About Us</h2>

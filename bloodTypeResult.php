@@ -80,26 +80,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['blood_type'])) {
         <!-- Hero Image and Overlay -->
         <div class="hero-image w-full h-80 bg-gray-300 relative">
             <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                <h1 class="text-4xl font-extrabold text-white">Donors and Blood Banks with Blood Type <?= htmlspecialchars($selectedBloodType) ?></h1>
+                <h1 class=" text-4xl font-extrabold text-white">Donors and Blood Banks with Blood Type <?= htmlspecialchars($selectedBloodType) ?></h1>
             </div>
         </div>
 
         <!-- Display Logged-In User's Info if available -->
         <?php if ($user): ?>
-            <div class="w-full max-w-7xl p-8">
-                <h2 class="text-2xl font-extrabold text-gray-900">Welcome, <?= htmlspecialchars($user['fullname']) ?></h2>
+            <div class="">
+                <!-- <h2 class="text-2xl font-extrabold text-gray-900">Welcome, <?= htmlspecialchars($user['fullname']) ?></h2>
                 <p><strong>Email:</strong> <?= htmlspecialchars($user['email']) ?></p>
                 <p><strong>Phone:</strong> <?= htmlspecialchars($user['phone']) ?></p>
-                <p><strong>Address:</strong> <?= htmlspecialchars($user['address']) ?></p>
+                <p><strong>Address:</strong> <?= htmlspecialchars($user['address']) ?></p> -->
             </div>
         <?php endif; ?>
 
         <!-- Main Content -->
-        <main class="w-full max-w-7xl p-8">
+        <h2 class=" bg-red-600 mt-1 w-full p-3 text-4xl font-extrabold text-center mb-12 text-white">Donors <?= htmlspecialchars($selectedBloodType) ?></h2>
+        <main class="w-full max-w-7xl px-8">
             <section class="container mx-auto">
                 <!-- Donors Section -->
-                <h2 class="text-4xl font-extrabold text-center mb-12 text-red-600">Donors <?= htmlspecialchars($selectedBloodType) ?></h2>
-                <div id="donor-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div id="donor-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
                     <?php if (count($donors) > 0): ?>
                         <?php foreach ($donors as $donor): ?>
                             <div class="bg-white shadow-md rounded-lg p-6">
@@ -108,21 +108,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['blood_type'])) {
                                 <p><strong>Phone:</strong> <?= htmlspecialchars($donor['phone']) ?></p>
                                 <p><strong>Address:</strong> <?= htmlspecialchars($donor['address']) ?></p>
                                 <p><strong>Gender:</strong> <?= htmlspecialchars($donor['gender']) ?></p>
-                                <form action="request_donation.php" method="POST">
-                                    <input type="hidden" name="donor_id" value="<?= htmlspecialchars($donor['id']) ?>">
-                                    <button type="submit" class="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        Request Blood
-                                    </button>
-                                </form>
+                                <?php
+if (isset($_SESSION['Uloggedin']) && $_SESSION['Uloggedin'] == true) {
+    echo '
+    <form action="request_donation.php" method="POST">
+        <input type="hidden" name="donor_id" value="' . htmlspecialchars($donor["id"]) . '">
+        <button type="submit" class="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Request Blood
+        </button>
+    </form>
+    ';
+}
+?>
+
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <p class="text-center text-gray-600">No donors found for this blood type.</p>
                     <?php endif; ?>
                 </div>
-
+                    </main>
+                </section>
+                <h2 class=" bg-gray-600 mt-10 w-full p-3 text-4xl font-extrabold text-center mb-12 text-white">Blood Banks for <?= htmlspecialchars($selectedBloodType) ?></h2>
+                <main class="w-full max-w-7xl px-8">
+                <section class="container mx-auto">
                 <!-- Blood Banks Section -->
-                <h2 class="text-4xl font-extrabold text-center mb-12 text-red-600 mt-6">Blood Banks for <?= htmlspecialchars($selectedBloodType) ?></h2>
                 <div id="blood-bank-list" class="mt-12 max-w-xs">
                     <?php if (count($bloodBanks) > 0): ?>
                         <?php foreach ($bloodBanks as $bank): ?>

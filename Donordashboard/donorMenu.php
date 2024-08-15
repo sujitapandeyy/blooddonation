@@ -81,7 +81,7 @@ if (!isset($_SESSION['donoremail'])) {
 
             </div>
         </nav>
-        <div class="flex items-center justify-center mt-auto mb-6">
+        <div class="flex items-center justify-center  mb-6">
             <?php if (isset($_SESSION['bankemail'])) { ?>
                 <a href="../logout.php"
                    class="flex items-center bg-red-500 text-white font-bold px-5 py-2 rounded-full hover:bg-red-600 transition duration-150">

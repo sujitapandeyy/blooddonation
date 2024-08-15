@@ -92,10 +92,16 @@ if (!isset($_SESSION['bankemail'])) {
                             <i class="fas fa-tint mr-3"></i>view Donation Request
                         </a>
                     </li>
+                    <li>
+                        <a href="viewBloodRequest.php"
+                           class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition duration-150">
+                            <i class="fas fa-tint mr-3"></i>view Blood Request
+                        </a>
+                    </li>
                    
                 </ul>
             </div>
-                    <div class="flex flex-col items-center mt-16">
+                    <div class="flex flex-col items-center mt-4">
                         <?php if (isset($_SESSION['bankemail'])) { ?>
                             <a class="flex items-center bg-red-500 text-white font-bold px-5 py-3 rounded-full hover:bg-red-600 transition"
                                 href="../logout.php">
