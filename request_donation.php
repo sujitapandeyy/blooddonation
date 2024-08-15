@@ -1,6 +1,6 @@
-<?php 
-session_start();
+<?php
 require('connection.php');
+session_start();
 
 // Initialize default values
 $default_name = '';
@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['donor_id'])) {
 
     if ($donor_result->num_rows > 0) {
         $donor = $donor_result->fetch_assoc();
+        $donor_blood_type = $donor['donor_blood_type'];  // Fetch donor's blood type
 
         if (isset($_POST['request'])) {
             $user_name = $_POST['name'];
@@ -64,11 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['donor_id'])) {
             $donor_email = $donor['email'];  // Fetch donor's email for insertion
 
             // Insert donation request into database
-            $request_stmt = $con->prepare("INSERT INTO blood_requests (donor_id, donor_email, requester_email, requester_name, requester_phone, donation_address, quantity, message, request_date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'Pending')");
+            $request_stmt = $con->prepare("INSERT INTO blood_requests (donor_id, donor_email, requester_email, requester_name, requester_phone, donation_address, quantity, message, request_date, status, bloodgroup) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'Pending', ?)");
             if (!$request_stmt) {
                 die("Prepare failed: " . $con->error);
             }
-            $request_stmt->bind_param("isssssss", $donor_id, $donor_email, $user_email, $user_name, $user_phone, $donation_address, $quantity, $message);
+            $request_stmt->bind_param("issssssss", $donor_id, $donor_email, $user_email, $user_name, $user_phone, $donation_address, $quantity, $message, $donor_blood_type);
             $request_stmt->execute();
 
             if ($request_stmt->affected_rows > 0) {
@@ -95,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['donor_id'])) {
     <script src="javascript/addressInput.js"></script>
 </head>
 <body class="bg-gray-100">
-    <?php include("header.php") ?>
+    <?php include("header.php"); ?>
 
     <div class="pt-24 flex flex-col items-center">
         <main class="w-full max-w-4xl p-8 bg-white shadow-md rounded-lg flex">

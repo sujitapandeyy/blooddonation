@@ -36,7 +36,7 @@ $result = $stmt->get_result();
     <?php @include("hero.php"); ?>
     <header class="bg-red-600 text-white p-4">
         <div class="container mx-auto">
-            <h1 class="text-2xl font-bold text-center">Nearby Donors</h1>
+            <h1 class="text-2xl font-bold text-center">Nearby Donors of <?php echo htmlspecialchars($bloodGroup); ?></h1>
         </div>
     </header>
     <main class="container mx-auto px-4 py-6">
@@ -69,7 +69,7 @@ if (isset($_SESSION['Uloggedin']) && $_SESSION['Uloggedin'] == true) {
                 <?php endwhile; ?>
             </div>
         <?php else: ?>
-            <p class="text-gray-700">No donors found within the specified distance.</p>
+            <p class="text-gray-700">No donors found within the specified distance and bloodtype.</p>
         <?php endif; ?>
     </main>
     <?php @include("footor.php"); ?>
