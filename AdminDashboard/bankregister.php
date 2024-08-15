@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
             $sql->bind_param("ssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type);
 
             if ($sql->execute()) {
-                header("Location: bankregister.php?error=Registration successful! bloodBank can login now!!");
+                header("Location: admindashboard.php?error=Registration successful! bloodBank can login now!!");
             } else {
                 header("Location: bankregister.php?error=Registration failed");
             }
