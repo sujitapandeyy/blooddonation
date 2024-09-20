@@ -4,7 +4,7 @@ session_start();
 
 // Check if user is logged in
 if (!isset($_SESSION['bankemail'])) {
-    header("Location: login.php?error=Login first");
+    header("Location: ../login.php?error=Login first");
     exit();
 }
 
@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $contactNumber = $_POST['contact_number'];
     $campaignDate = $_POST['campaign_date'];
     $description = $_POST['description'];
-    $address = $_POST['address'];
+    $address = $_POST['location'];
     $latitude = $_POST['latitude'];
     $longitude = $_POST['longitude'];
 
@@ -33,9 +33,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_param("ssssssdi", $campaignName, $contactNumber, $campaignDate, $description, $address, $latitude, $longitude, $bloodbank_id);
 
     if ($stmt->execute()) {
-        header("Location: addCampaign.php?error=New campaign created successfully!!");
+        // header("Location: editDonor.php?success=Profile updated successfully!");
+        header("Location: addCampaign.php?error=New record created successfully!!");
     } else {
-        header("Location: addCampaign.php?error=Failed to create campaign, try again");
+        header("Location:addCampaign.php?error=Failed to create campaign, try again");
     }
 
     $stmt->close();
@@ -56,6 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
     <script src="../javascript/addressInput.js"></script>
+
 </head>
 
 <body class="bg-gray-200">
@@ -104,14 +106,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-bold mb-2" for="address">Campaign Location</label>
-                    <input
-                        id="userAddress"
-                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
-                        type="text" placeholder="Enter Address" name="address" required>
-                    <div id="userSuggestions" class="suggestions"></div>
+                    <label for="location" class="block text-gray-700">Address</label>
+                    <input id="location" type="text" name="location"  class="w-full p-2 border border-gray-300 rounded">
+                    <div id="suggestions" class="suggestions"></div>
                     <input type="hidden" id="userLat" name="latitude">
-                    <input type="hidden" id="userLong" name="longitude">
+                    <input type="hidden" id="userLong" name="longitude" >
                 </div>
                 
                 <div class="mb-4">
@@ -129,11 +128,71 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
         </div>
     </section>
-    <script>
+    
+<script>
         $(document).ready(function () {
-            initializeAddressInput('userAddress', 'userSuggestions', 'userLat', 'userLong', 'displayUserLat', 'displayUserLong');
+            $('#location').on('input', function () {
+                var address = $(this).val().trim();
+                if (address.length > 0) {
+                    var url = "https://nominatim.openstreetmap.org/search?format=json&q=" + encodeURIComponent(address) + "&countrycodes=NP";
+
+                    $.ajax({
+                        url: url,
+                        method: 'GET',
+                        success: function (data) {
+                            $('#suggestions').empty();
+                            if (data.length > 0) {
+                                data.forEach(function (place) {
+                                    $('#suggestions').append('<div class="suggestion" data-lat="' + place.lat + '" data-lon="' + place.lon + '">' + place.display_name + '</div>');
+                                });
+                            }
+                        },
+                        error: function (error) {
+                            console.log('Error:', error);
+                        }
+                    });
+                } else {
+                    $('#suggestions').empty();
+                }
+            });
+
+            $(document).on('click', '.suggestion', function () {
+                var placeName = $(this).text();
+                var lat = $(this).data('lat');
+                var lon = $(this).data('lon');
+
+                $('#location').val(placeName);
+                $('#userLat').val(lat);
+                $('#userLong').val(lon);
+                $('#suggestions').empty();
+            });
+
+            $('#location').on('keypress', function (e) {
+                if (e.which == 13) {
+                    e.preventDefault();
+                    var firstSuggestion = $('#suggestions .suggestion').first();
+                    if (firstSuggestion.length > 0) {
+                        var placeName = firstSuggestion.text();
+                        var lat = firstSuggestion.data('lat');
+                        var lon = firstSuggestion.data('lon');
+
+                        $('#location').val(placeName);
+                        $('#userLat').val(lat);
+                        $('#userLong').val(lon);
+                        $('#suggestions').empty();
+                    }
+                }
+            });
+
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('#location').length) {
+                    $('#suggestions').empty();
+                }
+            });
         });
     </script>
+
+
 </body>
 
 </html>

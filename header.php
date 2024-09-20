@@ -21,7 +21,7 @@ require('connection.php');
 
 <body>
 <section class="bg-white p-4 shadow-md py-4 fixed w-full z-50">
-    <div class="container mx-auto h-14 flex items-center justify-between">
+    <div class="container mx-auto h-14 flex items-center justify-between mt-2">
         
         <a href="index.php">
             <img src="img/logo1.png" alt="Logo" width="240" height="100" class="custom-shadow">
@@ -40,6 +40,9 @@ require('connection.php');
                     <i class="fas fa-sign-in-alt mr-2"></i> Login
                 </a>
             <?php } ?>
+            <!-- <a class="flex items-center bg-red-500 text-white font-bold ml-2 py-2 px-4 rounded-full hover:bg-red-600 transition" href="donorregister.php">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Donate Now
+                </a> -->
         </div>
     </div>
 </section>

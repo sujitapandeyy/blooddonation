@@ -28,12 +28,22 @@ if (!$campaign) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campaign Details</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .bg-img {
+            background-image: url('img/type.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+        
+    </style>
 </head>
 
 <body class="bg-gray-200">
 <?php @include('header.php'); ?>
 
-    <section class="container mx-auto pt-32">
+    <section class="container mx-auto pt-32 bg-img">
         <h1 class="text-3xl font-bold mb-8 text-center"><?php echo htmlspecialchars($campaign['campaign_name']); ?></h1>
         <div class="bg-white p-6 rounded-lg shadow-md">
             <p><strong>Contact Number:</strong> <?php echo htmlspecialchars($campaign['contact_number']); ?></p>

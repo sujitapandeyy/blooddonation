@@ -2,13 +2,17 @@
 require('../connection.php');
 session_start();
 
+// Check if blood bank is logged in
 if (!isset($_SESSION['bankemail'])) {
     header("Location: ../login.php?error=Login first");
     exit();
 }
-
+// After successful login, set session variables
+// $bankid = $_SESSION['bankid'];
 $bankEmail = $_SESSION['bankemail'];
-$sql = "SELECT id FROM users WHERE email = ?";
+
+// Get blood bank ID
+$sql = "SELECT id FROM users WHERE email = ? AND user_type = 'BloodBank'";
 $stmt = $con->prepare($sql);
 $stmt->bind_param('s', $bankEmail);
 $stmt->execute();
@@ -16,19 +20,43 @@ $result = $stmt->get_result();
 $bank = $result->fetch_assoc();
 $bankId = $bank['id'];
 
-// Fetch donation requests for the logged-in blood bank
-$sql = "SELECT DISTINCT dr.*, u.fullname AS donor_name, u.email AS donor_email, u.phone AS donor_phone, 
-                  u.address AS donor_address, u.donor_blood_type AS donor_blood_type 
+// Define blood type priority (lower number means higher priority)
+$priority = [
+    'AB-' => 1,
+    'AB+' => 2,
+    'A-' => 3,
+    'A+' => 4,
+    'B-' => 5,
+    'B+' => 6,
+    'O-' => 7,
+    'O+' => 8,
+];
+
+// Convert priority array to SQL CASE statement
+$prioritySql = '';
+foreach ($priority as $type => $prio) {
+    $prioritySql .= "WHEN '{$type}' THEN {$prio} ";
+}
+
+// Prepare the SQL query
+$sql = "SELECT dr.id, dr.donor_email, dr.quantity, dr.message, dr.request_date, dr.status, dr.appointment_time,
+               u.fullname AS donor_name, u.email AS donor_email, u.phone AS donor_phone, u.address AS donor_address, 
+               d.donor_blood_type
         FROM donation_requests dr
         JOIN users u ON dr.donor_email = u.email
-        WHERE dr.blood_bank_id = ?";
+        JOIN donor d ON u.id = d.id
+        WHERE dr.blood_bank_id = ?
+        ORDER BY CASE d.donor_blood_type
+            $prioritySql
+            ELSE 9999
+        END";
+
+// Prepare and execute the statement
 $stmt = $con->prepare($sql);
 $stmt->bind_param('i', $bankId);
 $stmt->execute();
 $requests = $stmt->get_result();
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -40,21 +68,18 @@ $requests = $stmt->get_result();
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg-white">
-    <?php @include("bloodbankmenu.php"); ?>
+    <?php include("bloodbankmenu.php"); ?>
     <section class="ml-72 p-8">
         <h1 class="text-3xl font-bold mb-8">View Donation Requests</h1>
-         <!-- <?php if (isset($_GET['error'])) { ?>
-                <p class="bg-red-500 mb-4 text-center rounded">*<?php echo htmlspecialchars($_GET['error']); ?></p>
-                <?php } ?> -->
-            <?php if (isset($_GET['error'])) : ?>
-                        <?php
-                        $errorMessage = $_GET['error'];
-                        $errorClass = ($errorMessage === 'Status updated successfully!!') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-                        ?>
-                        <div class="w-full mb-6 p-4 rounded-md text-center font-semibold <?php echo $errorClass; ?>">
-                            <p><?php echo $errorMessage; ?></p>
-                        </div>
-                    <?php endif; ?>
+        <?php if (isset($_GET['error'])): ?>
+            <?php
+            $errorMessage = $_GET['error'];
+            $errorClass = ($errorMessage === 'Status updated successfully!!') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+            ?>
+            <div class="w-full mb-6 p-4 rounded-md text-center font-semibold <?php echo $errorClass; ?>">
+                <p><?php echo htmlspecialchars($errorMessage); ?></p>
+            </div>
+        <?php endif; ?>
         <table class="min-w-full bg-white border-collapse border border-gray-200">
             <thead>
                 <tr class="bg-gray-700 text-white">
@@ -79,7 +104,14 @@ $requests = $stmt->get_result();
                         <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['donor_name']); ?></td>
                         <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['donor_email']); ?></td>
                         <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['donor_phone']); ?></td>
-                        <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['donor_address']); ?></td>
+                        <td class="py-2 px-4 border-b">
+                            <?php 
+                                $address = htmlspecialchars($row['donor_address']);
+                                $words = explode(' ', $address); // Split address into words
+                                $firstThreeWords = implode(' ', array_slice($words, 0, 3)); // Get the first three words
+                                echo $firstThreeWords;
+                            ?>
+                        </td>
                         <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['message']); ?></td>
                         <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['request_date']); ?></td>
                         <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['status']); ?></td>
@@ -95,7 +127,7 @@ $requests = $stmt->get_result();
                 <?php endwhile; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="9" class="px-4 py-2 border border-gray-300 text-center">No requests available</td>
+                    <td colspan="10" class="px-4 py-2 border border-gray-300 text-center">No requests available</td>
                 </tr>
             <?php endif; ?>
             </tbody>
@@ -115,58 +147,60 @@ $requests = $stmt->get_result();
     </div>
 
     <script>
-    $(document).ready(function() {
-        let currentRequestId = null;
+  $(document).ready(function() {
+    let currentRequestId = null;
 
-        // Handle status change
-        $('.status-dropdown').change(function() {
-            const requestId = $(this).data('request-id');
-            const newStatus = $(this).val();
+    // Handle status change
+    $('.status-dropdown').change(function() {
+        const requestId = $(this).data('request-id');
+        const newStatus = $(this).val();
 
-            if (newStatus === 'Approved') {
-                currentRequestId = requestId;
-                $('#appointmentModal').removeClass('hidden');
-            } else {
-                updateStatus(requestId, newStatus);
-            }
-        });
-
-        // Save appointment time
-        $('#saveAppointment').click(function() {
-            const appointmentTime = $('#appointmentTime').val();
-            if (appointmentTime) {
-                updateStatus(currentRequestId, 'Approved', appointmentTime);
-                $('#appointmentModal').addClass('hidden');
-            } else {
-                alert('Please select an appointment time.');
-            }
-        });
-
-        // Close modal
-        $('#closeModal').click(function() {
-            $('#appointmentModal').addClass('hidden');
-        });
-
-        function updateStatus(requestId, status, appointmentTime = null) {
-            $.ajax({
-                url: 'updateRequestStatus.php',
-                method: 'POST',
-                data: {
-                    request_id: requestId,
-                    status: status,
-                    appointment_time: appointmentTime
-                },
-                success: function(response) {
-                    alert(response);
-                    // Optionally reload or update the UI
-                    location.reload();
-                },
-                error: function(xhr, status, error) {
-                    console.error("AJAX error:", error);
-                }
-            });
+        // Show modal if status is 'Approved'
+        if (newStatus === 'Approved') {
+            currentRequestId = requestId;
+            $('#appointmentModal').removeClass('hidden');
+        } else {
+            updateStatus(requestId, newStatus);
         }
     });
+
+    // Save appointment time
+    $('#saveAppointment').click(function() {
+        const appointmentTime = $('#appointmentTime').val();
+        if (currentRequestId && appointmentTime) {
+            $.post('updatebloodreq.php', {
+                id: currentRequestId,
+                status: 'Approved',
+                appointment_time: appointmentTime
+            }, function(response) {
+                $('#appointmentModal').addClass('hidden');
+                alert(response);
+                location.reload(); // Reload page on success
+            }).fail(function() {
+                alert('Failed to save appointment. Please try again.');
+            });
+        } else {
+            alert('Please select a valid appointment time.');
+        }
+    });
+
+    // Close modal
+    $('#closeModal').click(function() {
+        $('#appointmentModal').addClass('hidden');
+    });
+
+    // Function to update status via AJAX
+    function updateStatus(id, status) {
+        $.post('updatebloodreq.php', { id: id, status: status }, function(response) {
+            alert(response);
+            location.reload(); // Reload the page after status update
+        }).fail(function() {
+            alert('Failed to communicate with the server. Please try again.');
+        });
+    }
+});
+
     </script>
 </body>
 </html>
+

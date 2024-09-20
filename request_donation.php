@@ -42,8 +42,13 @@ $error_message = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['donor_id'])) {
     $donor_id = $_POST['donor_id'];
 
-    // Fetch donor details
-    $donor_stmt = $con->prepare("SELECT fullname, email, donor_blood_type, phone FROM users WHERE id = ?");
+    // Fetch donor details from both `users` and `donor` tables
+    $donor_stmt = $con->prepare("
+        SELECT u.fullname, u.email, u.phone, u.latitude, u.longitude, d.donor_blood_type, d.dob, d.weight, d.height, d.gender, d.last_donation_date, d.availability, d.days_until_eligible
+        FROM users u
+        JOIN donor d ON u.id = d.id
+        WHERE u.id = ?
+    ");
     if (!$donor_stmt) {
         die("Prepare failed: " . $con->error);
     }
@@ -64,8 +69,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['donor_id'])) {
             $message = $_POST['message'];
             $donor_email = $donor['email'];  // Fetch donor's email for insertion
 
-            // Insert donation request into database
-            $request_stmt = $con->prepare("INSERT INTO blood_requests (donor_id, donor_email, requester_email, requester_name, requester_phone, donation_address, quantity, message, request_date, status, bloodgroup) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'Pending', ?)");
+            // Insert donation request into the database
+            $request_stmt = $con->prepare("
+                INSERT INTO donorblood_request 
+                (donor_id, donor_email, requester_email, requester_name, requester_phone, donation_address, quantity, message, request_date, status, bloodgroup) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'Pending', ?)
+            ");
             if (!$request_stmt) {
                 die("Prepare failed: " . $con->error);
             }
@@ -108,6 +117,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['donor_id'])) {
                     <p class="mb-2"><strong>Email:</strong> <?= htmlspecialchars($donor['email'] ?? '') ?></p>
                     <p class="mb-2"><strong>Phone:</strong> <?= htmlspecialchars($donor['phone'] ?? '') ?></p>
                     <p class="mb-2"><strong>Blood Type:</strong> <?= htmlspecialchars($donor['donor_blood_type'] ?? '') ?></p>
+                    <p class="mb-2"><strong>Gender:</strong> <?= htmlspecialchars($donor['gender'] ?? '') ?></p>
+                    <p class="mb-2"><strong>DOB:</strong> <?= htmlspecialchars($donor['dob'] ?? '') ?></p>
+                    <p class="mb-2"><strong>Last Donation Date:</strong> <?= htmlspecialchars($donor['last_donation_date'] ?? '') ?></p>
+                    <p class="mb-2"><strong>Availability:</strong> <?= htmlspecialchars($donor['availability'] ?? '') ?></p>
                 </div>
             </div>
 
@@ -145,47 +158,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['donor_id'])) {
                         <input type="text" id="phone" name="phone" placeholder="Enter your phone" class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
                         value="<?= $default_phone ?>" <?= isset($_SESSION['useremail']) ? '' : 'required' ?>>
                     </div>
-                    
+
                     <div class="mb-4">
-                        <label class="block text-gray-700 font-bold mb-2" for="donation_address">Donation Address</label>
-                        <input
-                            class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
-                            type="text" placeholder="Enter donation Address" name="donation_address" id="donation_address" value="<?= $default_address ?>" required>
-                        <div id="userSuggestions" class="suggestions"></div>
-                        <input type="hidden" id="userLat" name="latitude">
-                        <input type="hidden" id="userLong" name="longitude">
-                        <div>
-                            <p id="displayUserLat"></p>
-                            <p id="displayUserLong"></p>
-                        </div>
+                        <label for="donation_address" class="block text-gray-700 font-bold mb-2">Donation Address</label>
+                        <input type="text" id="donation_address" name="donation_address" placeholder="Enter donation address" class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline" required value="<?= $default_address ?>">
                     </div>
 
                     <div class="mb-4">
-                        <label for="quantity" class="block text-gray-700 font-bold mb-2">Blood Quantity</label>
-                        <input type="text" id="quantity" name="quantity" placeholder="Enter request blood quantity" class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
-                        required>
+                        <label for="quantity" class="block text-gray-700 font-bold mb-2">Quantity</label>
+                        <input type="number" id="quantity" name="quantity" placeholder="Enter quantity" class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline" required>
                     </div>
 
                     <div class="mb-4">
-                        <label for="message" class="block text-gray-700 font-bold mb-2">Message (Optional)</label>
-                        <textarea id="message" name="message" rows="4" placeholder="Enter your message to donor" class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"></textarea>
+                        <label for="message" class="block text-gray-700 font-bold mb-2">Message (optional)</label>
+                        <textarea id="message" name="message" placeholder="Enter a message" class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"></textarea>
                     </div>
 
-                    <button type="submit" name="request" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        Submit Request
-                    </button>
+                    <div class="flex items-center justify-between">
+                        <button type="submit" name="request" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                            Submit Request
+                        </button>
+                    </div>
                 </form>
             </div>
         </main>
     </div>
-    <script>
-        $(document).ready(function () {
-            initializeAddressInput('donation_address', 'userSuggestions', 'userLat', 'userLong', 'displayUserLat', 'displayUserLong');
-        });
-    </script>
+
+    <?php @include 'footor.php'; ?>
 </body>
 </html>
-
-<?php
-$con->close();
-?>

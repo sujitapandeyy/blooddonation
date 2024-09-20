@@ -84,7 +84,13 @@ if (isset($_GET['id'])) {
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['gender']); ?></td>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['dob']); ?></td>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['weight']); ?></td>
-                    <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['address']); ?></td>
+                    <!-- <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['address']); ?></td> -->
+                    <td class="px-4 py-2 border border-gray-300"><?php $address = htmlspecialchars($row['address']);
+                                    $words = explode(' ', $address); // Split address into words
+                                    $firstThreeWords = implode(' ', array_slice($words, 0, 3)); // Get the first three words
+                                    echo $firstThreeWords;
+                                ?>
+                             </p>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['contact']); ?></td>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['bloodqty']); ?></td>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['collection']); ?></td>
