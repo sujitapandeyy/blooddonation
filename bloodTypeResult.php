@@ -6,7 +6,7 @@ session_start();
 $user = null;
 if (isset($_SESSION['useremail'])) {
     $user_email = $_SESSION['useremail'];
-    $user_stmt = $con->prepare("SELECT id, fullname, email, phone, address FROM users WHERE email = ?");
+    $user_stmt = $con->prepare("SELECT id, fullname, email FROM users WHERE email = ?");
     $user_stmt->bind_param("s", $user_email);
     $user_stmt->execute();
     $user_result = $user_stmt->get_result();
@@ -23,8 +23,13 @@ if (isset($_SESSION['useremail'])) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['blood_type'])) {
     $selectedBloodType = $_POST['blood_type'];
 
-    // Fetch donor details including ID
-    $donor_stmt = $con->prepare("SELECT id, fullname, email, phone, address, dob, weight, gender, height, last_donation_date FROM users WHERE donor_blood_type = ?");
+    // Fetch donor details
+    $donor_stmt = $con->prepare("
+        SELECT u.id, u.fullname, u.email, u.phone, u.address, d.dob, d.weight, d.gender, d.height, d.availability,d.profile_image
+        FROM users u
+        INNER JOIN donor d ON u.id = d.id
+        WHERE d.donor_blood_type = ?
+    ");
     $donor_stmt->bind_param("s", $selectedBloodType);
     $donor_stmt->execute();
     $donor_result = $donor_stmt->get_result();
@@ -37,11 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['blood_type'])) {
     $bank_stmt = $con->prepare("
         SELECT u.id, u.fullname, u.email, u.phone, u.address
         FROM users u
-        INNER JOIN blood_details bd ON u.id = bd.bloodbank_id
-        WHERE u.user_type = 'BloodBank' AND bd.bloodgroup = ?
-        GROUP BY u.id, u.fullname, u.email, u.phone, u.address
+        INNER JOIN bloodbank b ON u.id = b.id
+        WHERE u.user_type = 'BloodBank'
     ");
-    $bank_stmt->bind_param("s", $selectedBloodType);
     $bank_stmt->execute();
     $bank_result = $bank_stmt->get_result();
     $bloodBanks = [];
@@ -52,6 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['blood_type'])) {
     header('Location: index.php'); // Redirect to the main page if accessed directly
     exit();
 }
+$default_image_path = 'img/defaultimage.png';
+
 ?>
 
 <!DOCTYPE html>
@@ -65,7 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['blood_type'])) {
     <script src="https://kit.fontawesome.com/72f30a4d56.js" crossorigin="anonymous"></script>
     <style>
         .hero-image {
-            background-image: url('img/land2.png'); /* Update the path to your image */
+            background-image: url('img/land2.png');
+            /* Update the path to your image */
             background-size: cover;
             background-position: center;
             height: 20px;
@@ -80,7 +86,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['blood_type'])) {
         <!-- Hero Image and Overlay -->
         <div class="hero-image w-full h-80 bg-gray-300 relative">
             <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                <h1 class=" text-4xl font-extrabold text-white">Donors and Blood Banks with Blood Type <?= htmlspecialchars($selectedBloodType) ?></h1>
+                <h1 class="text-4xl font-extrabold text-white">Donors and Blood Banks with Blood Type
+                    <?= htmlspecialchars($selectedBloodType) ?></h1>
             </div>
         </div>
 
@@ -88,50 +95,68 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['blood_type'])) {
         <?php if ($user): ?>
             <div class="">
                 <!-- <h2 class="text-2xl font-extrabold text-gray-900">Welcome, <?= htmlspecialchars($user['fullname']) ?></h2>
-                <p><strong>Email:</strong> <?= htmlspecialchars($user['email']) ?></p>
-                <p><strong>Phone:</strong> <?= htmlspecialchars($user['phone']) ?></p>
-                <p><strong>Address:</strong> <?= htmlspecialchars($user['address']) ?></p> -->
+                <p><strong>Email:</strong> <?= htmlspecialchars($user['email']) ?></p> -->
             </div>
         <?php endif; ?>
 
         <!-- Main Content -->
-        <h2 class=" bg-red-600 mt-1 w-full p-3 text-4xl font-extrabold text-center mb-12 text-white">Donors <?= htmlspecialchars($selectedBloodType) ?></h2>
+        <h2 class="bg-red-600 mt-1 w-full p-3 text-4xl font-extrabold text-center mb-12 text-white">Donors
+            <?= htmlspecialchars($selectedBloodType) ?></h2>
         <main class="w-full max-w-7xl px-8">
             <section class="container mx-auto">
                 <!-- Donors Section -->
-                <div id="donor-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
+                <div id="donor-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4">
                     <?php if (count($donors) > 0): ?>
                         <?php foreach ($donors as $donor): ?>
-                            <div class="bg-white shadow-md rounded-lg p-6">
-                                <p class="text-lg font-semibold"><strong>Name:</strong> <?= htmlspecialchars($donor['fullname']) ?></p>
-                                <p><strong>Email:</strong> <?= htmlspecialchars($donor['email']) ?></p>
-                                <p><strong>Phone:</strong> <?= htmlspecialchars($donor['phone']) ?></p>
-                                <p><strong>Address:</strong> <?= htmlspecialchars($donor['address']) ?></p>
-                                <p><strong>Gender:</strong> <?= htmlspecialchars($donor['gender']) ?></p>
+                            <div class="bg-white shadow-md rounded-lg p-6 text-center">
+                            <div class="flex justify-center">
+                            <div class="mb-4 text-center">
+                                  <?php $profile_image = !empty($donor['profile_image']) ? 'upload/' . htmlspecialchars($donor['profile_image']) : $default_image_path ;?>
+                                <img src="<?php echo $profile_image; ?>" alt="Profile Image" class="w-20 h-20 rounded-full mx-auto" onerror="this.onerror=null; this.src='<?php echo $default_image_path; ?>';">
+                            </div>
+                        </div>
+                                <p class="text-lg font-bold">
+                                    <?= htmlspecialchars($donor['fullname']) ?></p>
+                                <p>Email: <?= htmlspecialchars($donor['email']) ?></p>
+                                <p>Phone: <?= htmlspecialchars($donor['phone']) ?></p>
+                                <p>
+                                    Address:
+                                    <?php
+                                    $address = htmlspecialchars($donor['address']);
+                                    $words = explode(' ', $address); // Split address into words
+                                    $firstThreeWords = implode(' ', array_slice($words, 0, 1)); // Get the first three words
+                                    echo $firstThreeWords;
+                                    ?>
+                                </p>
+                                <p>Gender: <?= htmlspecialchars($donor['gender']) ?></p>
+                                <!-- <p>Date of Birth: <?= htmlspecialchars($donor['dob']) ?></p> -->
+                                <!-- <p>Weight: <?= htmlspecialchars($donor['weight']) ?> kg</p> -->
+                                <!-- <p>Height: <?= htmlspecialchars($donor['height']) ?> cm</p> -->
+                                <p>Status:<span class="text-green-500"></span> <?= htmlspecialchars($donor['availability']) ?>
+                                </p>
                                 <?php
-if (isset($_SESSION['Uloggedin']) && $_SESSION['Uloggedin'] == true) {
-    echo '
-    <form action="request_donation.php" method="POST">
-        <input type="hidden" name="donor_id" value="' . htmlspecialchars($donor["id"]) . '">
-        <button type="submit" class="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            Request Blood
-        </button>
-    </form>
-    ';
-}
-?>
-
+                                if (isset($_SESSION['Uloggedin']) && $_SESSION['Uloggedin'] == true) {
+                                    echo '
+                                    <form action="request_donation.php" method="POST">
+                                        <input type="hidden" name="donor_id" value="' . htmlspecialchars($donor["id"]) . '">
+                                        <button type="submit" class="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            Request Blood
+                                        </button>
+                                    </form>
+                                    ';
+                                }
+                                ?>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <p class="text-center text-gray-600">No donors found for this blood type.</p>
                     <?php endif; ?>
                 </div>
-                    </main>
-                </section>
-                <h2 class=" bg-gray-600 mt-10 w-full p-3 text-4xl font-extrabold text-center mb-12 text-white">Blood Banks for <?= htmlspecialchars($selectedBloodType) ?></h2>
-                <main class="w-full max-w-7xl px-8">
-                <section class="container mx-auto">
+            </section>
+
+            <h2 class="bg-gray-600 mt-10 w-full p-3 text-4xl font-extrabold text-center mb-12 text-white">Blood Banks
+                for <?= htmlspecialchars($selectedBloodType) ?></h2>
+            <section class="container mx-auto">
                 <!-- Blood Banks Section -->
                 <div id="blood-bank-list" class="mt-12 max-w-xs">
                     <?php if (count($bloodBanks) > 0): ?>
@@ -141,9 +166,18 @@ if (isset($_SESSION['Uloggedin']) && $_SESSION['Uloggedin'] == true) {
                                 <div class="absolute inset-x-0 bottom-0 bg-white py-4 mx-2 my-2 px-6 shadow-lg rounded-t-lg">
                                     <h3 class="text-xl font-bold text-gray-900"><?= htmlspecialchars($bank['fullname']) ?></h3>
                                     <p class="text-gray-600">
-                                        <i class="fa-solid fa-home"></i> <?= htmlspecialchars($bank['address']) ?>
+                                        <i class="fa-solid fa-home"></i>
+                                        <?php
+                                        $address = htmlspecialchars($bank['address']);
+                                        $words = explode(' ', $address); // Split address into words
+                                        $firstThreeWords = implode(' ', array_slice($words, 0, 3)); // Get the first three words
+                                        echo $firstThreeWords;
+                                        ?>
                                     </p>
-                                    <a href="bloodbanksresult.php?id=<?= htmlspecialchars($bank['id']) ?>" class="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <!-- <img src="upload/<?php echo $bank['image']; ?>"alt="Blood Bank Image" class="w-full h-60 object-cover"> -->
+
+                                    <a href="bloodbanksresult.php?id=<?= htmlspecialchars($bank['id']) ?>"
+                                        class="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                         View Blood Details
                                     </a>
                                 </div>
@@ -156,6 +190,8 @@ if (isset($_SESSION['Uloggedin']) && $_SESSION['Uloggedin'] == true) {
             </section>
         </main>
     </div>
+    <?php @include 'footor.php'; ?>
+
 </body>
 
 </html>

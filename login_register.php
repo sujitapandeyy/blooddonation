@@ -89,11 +89,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $last_donation_date = !empty($_POST['lastDonationDate']) ? validate($_POST['lastDonationDate']) : NULL;
         $user_type = validate($_POST['user_type']);
 
-        if (empty($fullname) || empty($email) || empty($password) || empty($confirm_password) || empty($phone) || empty($address) || empty($dob) || empty($weight) || empty($gender) || empty($height) || empty($user_type)) {
+        if (empty($fullname) || empty($email) || empty($password) || empty($confirm_password) || empty($phone) || empty($address)|| empty($user_type)) {
             header("Location: register.php?error=Please fill all the fields!!");
             exit();
         
-        } else if(empty($latitude) || empty($longitude)){
+        } else if (empty($latitude) || empty($longitude)) {
             header("Location: register.php?error=Enter correct address ");
             exit();
         
@@ -106,9 +106,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } elseif ($password != $confirm_password) {
             header("Location: register.php?error=Password and confirm password do not match!!");
             exit();
-        } elseif (!preg_match('/^[0-9]+$/', $weight) || !preg_match('/^[0-9]+$/', $height)) {
-            header("Location: register.php?error=Weight and Height must be numeric values");
-            exit();
+        // } elseif (!preg_match('/^[0-9]+$/', $weight) || !preg_match('/^[0-9]+$/', $height)) {
+        //     header("Location: register.php?error=Weight and Height must be numeric values");
+        //     exit();
         } else {
             // Check if the email already exists for the same user type
             $user_exist_query = $con->prepare("SELECT * FROM users WHERE email = ? AND user_type = ?");
@@ -124,26 +124,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 if ($user_type == 'Donor') {
                     $donor_blood_type = validate($_POST['bloodgroup']);
-                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, user_type, latitude, longitude, donor_blood_type, dob, weight, gender, height, last_donation_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    $sql->bind_param("ssssssssssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type, $latitude, $longitude, $donor_blood_type, $dob, $weight, $gender, $height, $last_donation_date);
+                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, user_type) VALUES (?, ?, ?, ?, ?, ?)");
+                    $sql->bind_param("ssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type);
+                    
+                    if ($sql->execute()) {
+                        $donor_id = $con->insert_id;
+                        $sql_donor = $con->prepare("INSERT INTO donor (id, donor_blood_type, latitude, longitude, dob, weight, gender, height, last_donation_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        $sql_donor->bind_param("issssssss", $donor_id, $donor_blood_type, $latitude, $longitude, $dob, $weight, $gender, $height, $last_donation_date);
+                        if ($sql_donor->execute()) {
+                            header("Location: login.php?error=Registration successful! You can now login!!");
+                        } else {
+                            header("Location: register.php?error=Failed to register donor details");
+                        }
+                    } else {
+                        header("Location: register.php?error=Failed to register user");
+                    }
                 } elseif ($user_type == 'BloodBank') {
-                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, latitude, longitude, user_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-                    $sql->bind_param("ssssssss", $fullname, $email, $hashed_password, $phone, $address, $latitude, $longitude, $user_type);
+                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, user_type) VALUES (?, ?, ?, ?, ?, ?)");
+                    $sql->bind_param("ssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type);
+                    
+                    if ($sql->execute()) {
+                        $bank_id = $con->insert_id;
+                        $sql_bloodbank = $con->prepare("INSERT INTO bloodbank (id, phone, address, latitude, longitude, service_type, service_start_time, service_end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                        $sql_bloodbank->bind_param("isssssss", $bank_id, $phone, $address, $latitude, $longitude, $service_type, $service_start_time, $service_end_time);
+                        if ($sql_bloodbank->execute()) {
+                            header("Location: login.php?error=Registration successful! You can now login!!");
+                        } else {
+                            header("Location: register.php?error=Failed to register blood bank details");
+                        }
+                    } else {
+                        header("Location: register.php?error=Failed to register user");
+                    }
                 } elseif ($user_type == 'Admin') {
                     $admin_code = validate($_POST['admin_code']);
                     $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, user_type) VALUES (?, ?, ?, ?, ?, ?)");
                     $sql->bind_param("ssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type);
+                    if ($sql->execute()) {
+                        header("Location: login.php?error=Registration successful! You can now login!!");
+                    } else {
+                        header("Location: register.php?error=Failed to register admin");
+                    }
                 } else {
-                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, latitude, longitude, user_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-                    $sql->bind_param("ssssssss", $fullname, $email, $hashed_password, $phone, $address, $latitude, $longitude, $user_type);
+                    $sql = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, user_type) VALUES (?, ?, ?, ?, ?, ?)");
+                    $sql->bind_param("ssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type);
+                    if ($sql->execute()) {
+                        header("Location: login.php?error=Registration successful! You can now login!!");
+                    } else {
+                        header("Location: register.php?error=Failed to register user");
+                    }
                 }
-
-                if ($sql->execute()) {
-                    header("Location: login.php?error=Registration successful! You can now login!!");
-                } else {
-                    header("Location: register.php?error=Registration failed");
-                }
-                exit();
             }
         }
     }

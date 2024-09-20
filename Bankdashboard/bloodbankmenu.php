@@ -38,7 +38,7 @@ if (!isset($_SESSION['bankemail'])) {
         </div>
         <nav class="flex-1">
                 <div class=" justify-between">
-                <div class="px-4 py-5 border-b border-gray-300">
+                <div class="px-4 py-2 border-b border-gray-300">
                 <h2 class="text-gray-600 text-sm font-semibold mb-2">BloodBank Dashboard</h2>
                 <ul class="space-y-2">
                     <li>
@@ -49,7 +49,7 @@ if (!isset($_SESSION['bankemail'])) {
                     </li>
                 </ul>
             </div>
-                <div class="px-4 py-5 border-b border-gray-300">
+                <div class="px-4 py-2 border-b border-gray-300">
                 <h2 class="text-gray-600 text-sm font-semibold mb-2">blood details</h2>
                 <ul class="space-y-2">
                     <li>
@@ -66,7 +66,7 @@ if (!isset($_SESSION['bankemail'])) {
                     </li>
                 </ul>
             </div>
-                <div class="px-4 py-5 border-b border-gray-300">
+                <div class="px-4 py-2 border-b border-gray-300">
                 <h2 class="text-gray-600 text-sm font-semibold mb-2">Campaign details</h2>
                 <ul class="space-y-2">
                     <li>
@@ -83,7 +83,7 @@ if (!isset($_SESSION['bankemail'])) {
                     </li>
                 </ul>
             </div>
-                <div class="px-4 py-5 border-b border-gray-300">
+                <div class="px-4 py-2 border-b border-gray-300">
                 <h2 class="text-gray-600 text-sm font-semibold mb-2">Donation request</h2>
                 <ul class="space-y-2">
                     <li>
@@ -101,7 +101,7 @@ if (!isset($_SESSION['bankemail'])) {
                    
                 </ul>
             </div>
-                    <div class="flex flex-col items-center mt-4">
+                    <div class="flex flex-col items-center mt-20">
                         <?php if (isset($_SESSION['bankemail'])) { ?>
                             <a class="flex items-center bg-red-500 text-white font-bold px-5 py-3 rounded-full hover:bg-red-600 transition"
                                 href="../logout.php">

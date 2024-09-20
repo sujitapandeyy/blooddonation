@@ -95,7 +95,7 @@ while ($row = $request_history_result->fetch_assoc()) {
                                         <!-- <th class="py-2 px-4 border-b border-gray-200">Message</th> -->
                                         <th class="py-2 px-4 border-b border-gray-200">Request Date</th>
                                         <th class="py-2 px-4 border-b border-gray-200">Status</th>
-                                        <th class="py-2 px-4 border-b border-gray-200">Delivery Time</th>
+                                        <th class="py-2 px-4 border-b border-gray-200">Delivery within</th>
                                         <!-- <th class="py-2 px-4 border-b border-gray-200">Option</th> -->
                                     </tr>
                                 </thead>

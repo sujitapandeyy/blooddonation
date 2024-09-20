@@ -10,13 +10,13 @@ if (!isset($_SESSION['donoremail'])) {
 
 $donor_email = $_SESSION['donoremail'];
 
-// Fetch available blood banks for dropdown
+// Fetch available blood banks with additional details for dropdown
 $query = $con->prepare("SELECT id, fullname FROM users WHERE user_type = 'BloodBank'");
 $query->execute();
 $blood_banks = $query->get_result();
 
 // Fetch donor details
-$query = $con->prepare("SELECT fullname, phone, address FROM users WHERE email = ? AND user_type = 'Donor'");
+$query = $con->prepare("SELECT u.fullname, u.phone, u.address, d.donor_blood_type, d.dob, d.weight, d.gender, d.height, d.last_donation_date, d.availability, d.days_until_eligible FROM users u JOIN donor d ON u.id = d.id WHERE u.email = ? AND u.user_type = 'Donor'");
 $query->bind_param("s", $donor_email);
 $query->execute();
 $donor = $query->get_result()->fetch_assoc();
@@ -46,14 +46,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // Fetch previous donation requests
-$query = $con->prepare("SELECT dr.id, dr.quantity, dr.message, dr.request_date, dr.status, dr.appointment_time, bb.fullname as blood_bank 
-                        FROM donation_requests dr 
-                        JOIN users bb ON dr.blood_bank_id = bb.id 
-                        WHERE dr.donor_email = ? 
-                        ORDER BY dr.request_date DESC");
+$query = $con->prepare("SELECT dr.id, dr.quantity, dr.message, dr.request_date, dr.status, dr.appointment_time, bb.fullname as blood_bank FROM donation_requests dr JOIN users bb ON dr.blood_bank_id = bb.id WHERE dr.donor_email = ? ORDER BY dr.request_date DESC");
 $query->bind_param("s", $donor_email);
 $query->execute();
 $previous_requests = $query->get_result();
+
+// Fetch donation history
+$query = $con->prepare("SELECT bd.collection, bd.bloodqty, u.fullname as blood_bank FROM blood_details bd JOIN users u ON bd.bloodbank_id = u.id WHERE bd.donor_email = ? ORDER BY bd.collection DESC");
+$query->bind_param("s", $donor_email);
+$query->execute();
+$donation_history = $query->get_result();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -64,8 +66,8 @@ $previous_requests = $query->get_result();
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <script src="https://kit.fontawesome.com/72f30a4d56.js" crossorigin="anonymous"></script>
 </head>
-<body class="">
-    <!-- <?php include("donorMenu.php"); ?> -->
+<body>
+                <!-- <?php include("donorMenu.php"); ?> -->
 
     <main class="ml-64 py-2 px-8">
         <div class="bg-white p-6 rounded-lg shadow-lg">
@@ -82,8 +84,7 @@ $previous_requests = $query->get_result();
             <form action="donateRequest.php" method="POST">
                 <div class="mb-4">
                     <label for="blood_bank" class="block text-gray-700">Select Blood Bank</label>
-                    <select name="blood_bank" id="blood_bank" required
-                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline">
+                    <select name="blood_bank" id="blood_bank" required class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline">
                         <option value="" disabled selected>Select Blood Bank</option>
                         <?php while ($row = $blood_banks->fetch_assoc()): ?>
                             <option value="<?php echo $row['id']; ?>"><?php echo htmlspecialchars($row['fullname']); ?></option>
@@ -125,6 +126,29 @@ $previous_requests = $query->get_result();
                             <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['message']); ?></td>
                             <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['status']); ?></td>
                             <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['appointment_time']); ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Display donation history -->
+        <div class="bg-white p-6 mt-8 rounded-lg shadow-lg">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Donation History</h2>
+            <table class="min-w-full bg-white border-collapse border border-gray-200">
+                <thead>
+                    <tr class="bg-gray-500 text-white">
+                        <th class="px-4 py-2 border border-gray-300">Date</th>
+                        <th class="px-4 py-2 border border-gray-300">Quantity (ml)</th>
+                        <th class="px-4 py-2 border border-gray-300">Blood Bank</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($history = $donation_history->fetch_assoc()): ?>
+                        <tr>
+                            <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($history['collection']); ?></td>
+                            <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($history['bloodqty']); ?></td>
+                            <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($history['blood_bank']); ?></td>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
