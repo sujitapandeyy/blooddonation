@@ -104,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
                 $sql_bloodbank->bind_param("issss", $bloodbank_id, $service_type, $service_start_time, $service_end_time, $image_path);
 
                 if ($sql_bloodbank->execute()) {
-                    header("Location: bankregister.php?success=Registration successful! BloodBank can login now!!");
+                    header("Location: bloodBankResult.php?success=Registration successful! BloodBank can login now!!");
                 } else {
                     header("Location: bankregister.php?error=Failed to register blood bank details.");
                 }
