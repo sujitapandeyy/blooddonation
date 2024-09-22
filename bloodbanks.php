@@ -16,14 +16,23 @@ $bloodBankResult = $bloodBankQuery->get_result();
     <title>Available Blood Banks</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/72f30a4d56.js" crossorigin="anonymous"></script>
+    <s src="https://kit.fontawesome.com/72f30a4d56.js" crossorigin="anonymous"></s>
+    <style>
+        .bg-imggg {
+            background-image: url('img/type.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+    </style>
 </head>
 
-<body class="font-Roboto">
-    <section class="bg-white w-full p-10">
-        <h2 class="text-4xl font-bold text-center mb-12 text-red-600">Available Blood Banks</h2>
+<body class="">
+    <section class=" w-full p-10 ">
+        <h2 class="text-4xl  font-serif text-center mb-12 text-red-600">Available Blood Banks</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-            <?php while ($row = $bloodBankResult->fetch_assoc()) { 
+            <?php while ($row = $bloodBankResult->fetch_assoc()) {
                 $bloodBankId = $row['id'];
 
                 // Fetch average rating for this blood bank
@@ -32,11 +41,13 @@ $bloodBankResult = $bloodBankQuery->get_result();
                 $avgRatingStmt->execute();
                 $avgResult = $avgRatingStmt->get_result()->fetch_assoc();
                 $averageRating = $avgResult['average_rating'] ? round($avgResult['average_rating'], 1) : 'No ratings yet';
-            ?>
-                <div class="relative bg-white shadow-md rounded-lg overflow-hidden transform transition-transform duration-300 hover:scale-105">
+                ?>
+                <div
+                    class="relative bg-white shadow-md rounded-lg overflow-hidden transform transition-transform duration-300 hover:scale-105">
                     <img src="img/slide1.png" alt="Blood Bank Image" class="w-full h-50 object-cover p-5">
-                    <div class="bg-white py-4 mx-2 my-2 px-6 shadow-lg rounded-t-lg">
-                        <h3 class="text-xl font-bold text-gray-900"><?php echo htmlspecialchars($row['fullname']); ?></h3>
+                    <div class="bg-white py-4 mx-2 my-2 px-6 shadow-lg rounded-t-lg" style="min-height: 230px;">
+                        <h3 class="text-xl font-semibold font-serif text-gray-900">
+                            <?php echo htmlspecialchars($row['fullname']); ?></h3>
                         <p class="text-gray-600 mt-2">
                             <i class="fa-solid fa-map-marker-alt"></i>
                             <?php
@@ -47,7 +58,7 @@ $bloodBankResult = $bloodBankQuery->get_result();
                             ?>
                         </p>
                         <h3 class="">
-                            <?php 
+                            <?php
                             if ($averageRating === 'No ratings yet') {
                                 echo htmlspecialchars($averageRating, ENT_QUOTES, 'UTF-8');
                             } else {
@@ -67,6 +78,7 @@ $bloodBankResult = $bloodBankQuery->get_result();
                             View Blood Details
                         </a>
                     </div>
+
                 </div>
             <?php } ?>
         </div>

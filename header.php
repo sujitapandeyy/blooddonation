@@ -1,6 +1,6 @@
 <?php
 require('connection.php');
-// session_start();?>
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,9 +12,9 @@ require('connection.php');
     <link rel="icon" href="favIcon.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-          .custom-shadow {
+        .custom-shadow {
             filter: drop-shadow(10px 10px 10px red);
-          }
+        }
     </style>
     <title>Document</title>
 </head>
@@ -27,22 +27,55 @@ require('connection.php');
             <img src="img/logo1.png" alt="Logo" width="240" height="100" class="custom-shadow">
         </a>
         <div class="flex items-center font-bold">
-            <?php if (isset($_SESSION['Uloggedin']) && $_SESSION['Uloggedin'] === true) { ?>
+
+            <!-- User Section -->
+            <?php if (isset($_SESSION['Uloggedin']) && $_SESSION['Uloggedin'] === true): ?>
                 <a class="flex mr-2 items-center bg-red-500 text-white font-bold py-2 px-4 rounded-full hover:bg-red-600 transition" href="logout.php">
                     <i class="fas fa-sign-out-alt mr-2"></i> Logout
                 </a>
                 <a class="flex items-center bg-blue-500 text-white font-bold py-2 px-4 rounded-full hover:bg-blue-600 transition" href="userhistory.php">
                     <i class="mr-2"></i> History
                 </a>
-                <!-- <span class="ml-4"><?php echo htmlspecialchars($_SESSION['useremail']); ?></span> -->
-            <?php } else { ?>
+
+
+             
+         <div class="name_logo">
+          
+             <?php
+                 $email = $_SESSION['useremail'];
+                 $trimmedemail = trim($email); // Trim any whitespace from the beginning and end of the user's full name
+                 $firstLetter = substr($trimmedemail, 0, 3); // Retrieve the first character of the trimmed user's full name
+                 $firstLetterCap = ucfirst($firstLetter);
+                 echo $firstLetterCap;
+             ?>
+            </p>
+        </div>
+              
+
+
+
+            <?php endif; ?>
+
+            <!-- Donor Section -->
+            <?php if (isset($_SESSION['Dloggedin']) && $_SESSION['Dloggedin'] === true): ?>
+                <a class="flex mr-2 items-center bg-red-500 text-white font-bold py-2 px-4 rounded-full hover:bg-red-600 transition" href="logout.php">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </a>
+                <a class="flex items-center bg-blue-500 text-white font-bold py-2 px-4 rounded-full hover:bg-blue-600 transition" href="Donordashboard/bloodrequest.php">
+                    <i class="mr-2"></i> View Blood Request
+                </a>
+                <!-- <a class="flex items-center bg-blue-500 text-white font-bold py-2 px-4 rounded-full hover:bg-blue-600 transition" href="Donordashboard/donaterequest.php">
+                    <i class="mr-2"></i> Donate Request
+                </a> -->
+            <?php endif; ?>
+
+            <!-- Show Login if no user or donor is logged in -->
+            <?php if (!isset($_SESSION['Uloggedin']) && !isset($_SESSION['Dloggedin'])): ?>
                 <a class="flex items-center bg-red-500 text-white font-bold py-2 px-4 rounded-full hover:bg-red-600 transition" href="login.php">
                     <i class="fas fa-sign-in-alt mr-2"></i> Login
                 </a>
-            <?php } ?>
-            <!-- <a class="flex items-center bg-red-500 text-white font-bold ml-2 py-2 px-4 rounded-full hover:bg-red-600 transition" href="donorregister.php">
-                    <i class="fas fa-sign-in-alt mr-2"></i> Donate Now
-                </a> -->
+            <?php endif; ?>
+
         </div>
     </div>
 </section>
