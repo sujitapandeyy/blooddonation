@@ -197,6 +197,6 @@ $con->close();
         </div>
     </section>
 
-    <?php include 'footer.php'; ?>
+    <?php @include 'footor.php'; ?>
 </body>
 </html>

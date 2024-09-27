@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['blood_type'])) {
 
     // Fetch donor details
     $donor_stmt = $con->prepare("
-        SELECT u.id, u.fullname, u.email, u.phone, u.address, d.dob, d.weight, d.gender, d.height, d.availability,d.profile_image
+        SELECT u.id, u.fullname, u.email, u.phone, u.address, d.dob, d.weight, d.gender,d.profile_image
         FROM users u
         INNER JOIN donor d ON u.id = d.id
         WHERE d.donor_blood_type = ?
@@ -142,7 +142,7 @@ $default_image_path = 'img/defaultimage.png';
                                 <!-- <p>Date of Birth: <?= htmlspecialchars($donor['dob']) ?></p> -->
                                 <!-- <p>Weight: <?= htmlspecialchars($donor['weight']) ?> kg</p> -->
                                 <!-- <p>Height: <?= htmlspecialchars($donor['height']) ?> cm</p> -->
-                                <p>Status:<span class="text-green-500"></span> <?= htmlspecialchars($donor['availability']) ?>
+                                <!-- <p>Status:<span class="text-green-500"></span> <?= htmlspecialchars($donor['availability']) ?> -->
                                 </p>
                                 <?php
                                 if (isset($_SESSION['Uloggedin']) && $_SESSION['Uloggedin'] == true) {

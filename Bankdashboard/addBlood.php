@@ -3,7 +3,7 @@ require ('../connection.php');
 session_start();
 
 if (!isset($_SESSION['bankemail'])) {
-    header("Location: login.php?error=Login first");
+    header("Location: ../login.php?error=Login first");
     exit(); 
 }
 
@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
-<body class="bg-gray-200">
+<body class="">
     <?php @include ("bloodbankmenu.php"); ?>
     <section class="ml-72 p-8 max-w-4xl">
 
@@ -98,11 +98,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <div class="mb-4">
                     <label class="block text-gray-700 font-bold mb-2" for="gender">Gender </label>
-                    <input
+                    <select
                         class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
-                        type="text" placeholder="Male/Female/other" name="gender" required>
+                         name="gender" required> 
+                         <option value="" disabled selected>Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
                 </div>
-
+               
                 <div class="mb-4">
                     <label class="block text-gray-700 font-bold mb-2" for="dob">Enter Date of
                         birth</label>
@@ -112,9 +116,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-bold mb-2" for="weight">Enter Weight</label>
+                    <label class="block text-gray-700 font-bold mb-2" for="weight">Enter Weight(kg)</label>
                     <input
-                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
+                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"  placeholder="Enter donor weight"
                         type="number" name="weight" required>
                 </div>
 
@@ -137,17 +141,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <div class="mb-4">
                     <label class="block text-gray-700 font-bold mb-2" for="bloodqty">Blood
-                        Quantity</label>
+                        Quantity(ml)</label>
                     <input
                         class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
-                        type="number" name="bloodqty" required>
+                        placeholder="Enter blood quantity" type="number" name="bloodqty" max="500" min="100" required>
                 </div>
 
                 <div class="mb-4">
                     <label class="block text-gray-700 font-bold mb-2" for="address">Enter
                         Address</label>
                     <input
-                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
+                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline" placeholder="Enter address"
                         type="text" name="address" required>
                 </div>
 
@@ -155,7 +159,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label class="block text-gray-700 font-bold mb-2" for="contact">Enter Contact
                         Number</label>
                     <input
-                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
+                        class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline" placeholder="Donor contact number"
                         type="number" name="contact" required>
                 </div>
 

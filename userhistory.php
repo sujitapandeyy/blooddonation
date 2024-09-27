@@ -19,10 +19,10 @@ if (isset($_SESSION['useremail'])) {
     }
 }
 
-// Fetch user's request history
+// Fetch user's request history from donorblood_request table (Donor records)
 $request_history_stmt = $con->prepare("
     SELECT 
-        donor_email, 
+        donor_email,
         bloodgroup, 
         requester_name, 
         requester_email, 
@@ -34,7 +34,7 @@ $request_history_stmt = $con->prepare("
         status, 
         delivery_time 
     FROM 
-        blood_requests 
+        donorblood_request 
     WHERE 
         requester_email = ?
     ORDER BY 
@@ -48,84 +48,130 @@ while ($row = $request_history_result->fetch_assoc()) {
     $user_requests[] = $row;
 }
 
-// Handle POST request
-
+// Fetch details from blood_requests table with blood bank email (Blood Bank records)
+$blood_requests_stmt = $con->prepare("
+    SELECT 
+        br.bloodgroup,
+        br.requester_name,
+        br.requester_email,
+        br.requester_phone,
+        br.donation_address,
+        br.quantity,
+        br.message,
+        br.request_date,
+        br.status,
+        br.delivery_time,
+        u.email AS bloodbank_email
+    FROM 
+        blood_requests br
+    JOIN 
+        users u ON br.bloodbank_id = u.id
+    WHERE 
+        br.requester_email = ?
+    ORDER BY 
+        br.request_date DESC
+");
+$blood_requests_stmt->bind_param("s", $user_email);
+$blood_requests_stmt->execute();
+$blood_requests_result = $blood_requests_stmt->get_result();
+$blood_requests = [];
+while ($row = $blood_requests_result->fetch_assoc()) {
+    $blood_requests[] = $row;
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Donors and Blood Banks</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/72f30a4d56.js" crossorigin="anonymous"></script>
-    <style>
-        .hero-image {
-            background-image: url('img/land2.png'); /* Update the path to your image */
-            background-size: cover;
-            background-position: center;
-            height: 20px;
-        }
-    </style>
 </head>
-
-<body class="bg-gray-100">
+<body class="">
     <?php @include("header.php") ?>
 
     <div class="pt-24 flex flex-col items-center">
-       
+        <h2 class="text-5xl font-thin mb-8 text-center font-serif text-red-500 mt-12">Your Request History</h2>
 
-                <!-- User Request History Section -->
-                <h2 class="text-4xl font-extrabold text-center mb-12 text-red-600 mt-12">Your Request History</h2>
-                <div id="request-history" class="mt-6 max-w-7xl mx-auto">
-                    <?php if (count($user_requests) > 0): ?>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full bg-white">
-                                <thead>
-                                    <tr>
-                                        <th class="py-2 px-4 border-b border-gray-200">Donor Email</th>
-                                        <th class="py-2 px-4 border-b border-gray-200">Blood Group</th>
-                                        <!-- <th class="py-2 px-4 border-b border-gray-200">Requester Name</th> -->
-                                        <!-- <th class="py-2 px-4 border-b border-gray-200">Requester Email</th> -->
-                                        <!-- <th class="py-2 px-4 border-b border-gray-200">Requester Phone</th> -->
-                                        <th class="py-2 px-4 border-b border-gray-200">Donation Address</th>
-                                        <th class="py-2 px-4 border-b border-gray-200">Quantity</th>
-                                        <!-- <th class="py-2 px-4 border-b border-gray-200">Message</th> -->
-                                        <th class="py-2 px-4 border-b border-gray-200">Request Date</th>
-                                        <th class="py-2 px-4 border-b border-gray-200">Status</th>
-                                        <th class="py-2 px-4 border-b border-gray-200">Delivery within</th>
-                                        <!-- <th class="py-2 px-4 border-b border-gray-200">Option</th> -->
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($user_requests as $request): ?>
-                                        <tr>
-                                            <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['donor_email']) ?></td>
-                                            <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['bloodgroup']) ?></td>
-                                            <!-- <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['requester_name']) ?></td> -->
-                                            <!-- <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['requester_email']) ?></td> -->
-                                            <!-- <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['requester_phone']) ?></td> -->
-                                            <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['donation_address']) ?></td>
-                                            <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['quantity']) ?></td>
-                                            <!-- <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['message']) ?></td> -->
-                                            <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['request_date']) ?></td>
-                                            <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['status']) ?></td>
-                                            <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['delivery_time']) ?></td>
-                                            <!-- <td class="py-2 px-4 border-b border-gray-200 text-red-500 hover:underline">Cancel</td> -->
-
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php else: ?>
-                        <p class="text-center text-gray-600">No requests found.</p>
-                    <?php endif; ?>
+        <!-- Donor Requests Table -->
+        <div id="donor-requests" class="mt-6 max-w-7xl mx-auto shadow-ms">
+            <h3 class="text-2xl font-thin mb-3 text-center font-serif text-gray-700">Donor Requests</h3>
+            <?php if (count($user_requests) > 0): ?>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr class="bg-gray-300">
+                                <th class="py-2 px-4 border-b border-gray-200 ">Donor Email</th>
+                                <th class="py-2 px-4 border-b border-gray-200">Blood Group</th>
+                                <!-- <th class="py-2 px-4 border-b border-gray-200">Requester Name</th> -->
+                                <th class="py-2 px-4 border-b border-gray-200">Donation Address</th>
+                                <th class="py-2 px-4 border-b border-gray-200">Quantity</th>
+                                <th class="py-2 px-4 border-b border-gray-200">Request Date</th>
+                                <th class="py-2 px-4 border-b border-gray-200">Status</th>
+                                <th class="py-2 px-4 border-b border-gray-200">Delivery Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($user_requests as $request): ?>
+                                <tr>
+                                    <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['donor_email']) ?></td>
+                                    <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['bloodgroup']) ?></td>
+                                    <!-- <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['requester_name']) ?></td> -->
+                                    <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['donation_address']) ?></td>
+                                    <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['quantity']) ?></td>
+                                    <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['request_date']) ?></td>
+                                    <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['status']) ?></td>
+                                    <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($request['delivery_time']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
-            
+            <?php else: ?>
+                <p class="text-center text-gray-600">No donor requests found.</p>
+            <?php endif; ?>
+        </div>
+
+        <!-- Blood Bank Requests Table -->
+        <div id="bloodbank-requests" class="mt-6 max-w-7xl mx-auto shadow-md">
+            <h3 class="text-2xl font-thin mt-16 mb-3 text-center font-serif text-gray-700 ">Blood Bank Requests</h3>
+            <?php if (count($blood_requests) > 0): ?>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr class="bg-gray-300">
+                                <th class="py-2 px-4 border-b border-gray-200">Blood Bank Email</th>
+                                <th class="py-2 px-4 border-b border-gray-200">Blood Group</th>
+                                <!-- <th class="py-2 px-4 border-b border-gray-200">Requester Name</th> -->
+                                <th class="py-2 px-4 border-b border-gray-200">Donation Address</th>
+                                <th class="py-2 px-4 border-b border-gray-200">Quantity</th>
+                                <th class="py-2 px-4 border-b border-gray-200">Request Date</th>
+                                <th class="py-2 px-4 border-b border-gray-200">Status</th>
+                                <th class="py-2 px-4 border-b border-gray-200">Delivery Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($blood_requests as $blood_request): ?>
+                                <tr>
+                                    <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($blood_request['bloodbank_email']) ?></td>
+                                    <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($blood_request['bloodgroup']) ?></td>
+                                    <!-- <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($blood_request['requester_name']) ?></td> -->
+                                    <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($blood_request['donation_address']) ?></td>
+                                    <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($blood_request['quantity']) ?></td>
+                                    <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($blood_request['request_date']) ?></td>
+                                    <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($blood_request['status']) ?></td>
+                                    <td class="py-2 px-4 border-b border-gray-200"><?= htmlspecialchars($blood_request['delivery_time']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php else: ?>
+                <p class="text-center text-gray-600">No blood bank requests found.</p>
+            <?php endif; ?>
+        </div>
     </div>
 </body>
-
 </html>

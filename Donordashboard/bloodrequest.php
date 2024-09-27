@@ -9,15 +9,20 @@ if (!isset($_SESSION['donoremail'])) {
 }
 
 // SQL query to fetch blood requests
+
+$donor_email = $_SESSION['donoremail'];
 $request_query = "SELECT br.id, br.donor_id, br.donor_email, br.requester_name, br.requester_email, br.requester_phone, br.donation_address, br.quantity, br.message, br.request_date, br.status, u.fullname AS donor_name
                   FROM donorblood_request br
                   JOIN users u ON br.donor_id = u.id
+                  WHERE br.donor_email = ? 
                   ORDER BY br.request_date DESC";
 
-// Execute the query and handle potential errors
-$result = $con->query($request_query);
+// Prepare the statement
+$stmt = $con->prepare($request_query);
+$stmt->bind_param("s", $donor_email); 
+$stmt->execute();
 
-// Check if the query was successful
+$result = $stmt->get_result();
 if (!$result) {
     die("Error executing query: " . $con->error);
 }
@@ -28,7 +33,7 @@ if (!$result) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>View Blood Requests</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <script src="https://kit.fontawesome.com/72f30a4d56.js" crossorigin="anonymous"></script>
     <style>
@@ -42,7 +47,6 @@ if (!$result) {
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgb(0,0,0);
             background-color: rgba(0,0,0,0.4);
             padding-top: 60px;
         }
@@ -62,14 +66,12 @@ if (!$result) {
         .close:hover,
         .close:focus {
             color: black;
-            text-decoration: none;
             cursor: pointer;
         }
     </style>
 </head>
-<body class="">
+<body>
             <!-- <?php include("donorMenu.php"); ?> -->
-
     <div class="flex flex-col items-center ml-32">
         <main class="m-full max-w-5xl p-3 rounded-lg">
             <h1 class="text-2xl font-bold mb-4 text-center">View Blood Requests</h1>
@@ -92,14 +94,14 @@ if (!$result) {
                     </thead>
                     <tbody>
                         <?php while ($row = $result->fetch_assoc()): ?>
-                            <tr>
+                            <tr data-request-id="<?= htmlspecialchars($row['id']) ?>" data-donor-id="<?= htmlspecialchars($row['donor_id']) ?>">
                                 <td class="py-2 px-4 border-b"><?= htmlspecialchars($row['id']) ?></td>
                                 <td class="py-2 px-4 border-b"><?= htmlspecialchars($row['requester_name']) ?></td>
                                 <td class="py-2 px-4 border-b"><?= htmlspecialchars($row['requester_email']) ?></td>
                                 <td class="py-2 px-4 border-b"><?= htmlspecialchars($row['requester_phone']) ?></td>
                                 <td class="py-2 px-4 border-b"><?php $address = htmlspecialchars($row['donation_address']);
-                                    $words = explode(' ', $address); // Split address into words
-                                    $firstThreeWords = implode(' ', array_slice($words, 0, 3)); // Get the first three words
+                                    $words = explode(' ', $address); 
+                                    $firstThreeWords = implode(' ', array_slice($words, 0, 3)); 
                                     echo $firstThreeWords;
                                 ?>
                              </td>
@@ -166,11 +168,13 @@ if (!$result) {
         }
 
         function sendUpdate(requestId, newStatus, deliveryTime = null) {
+            const donorId = document.querySelector(`tr[data-request-id="${requestId}"]`).dataset.donorId;
+
             const xhr = new XMLHttpRequest();
             xhr.open("POST", "update_status.php", true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
-            let params = `id=${requestId}&status=${newStatus}`;
+            let params = `id=${requestId}&status=${newStatus}&donor_id=${donorId}`;
             if (deliveryTime) {
                 params += `&delivery_time=${deliveryTime}`;
             }

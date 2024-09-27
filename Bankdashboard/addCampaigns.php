@@ -28,19 +28,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $latitude = $_POST['latitude'];
     $longitude = $_POST['longitude'];
 
-    $sql = "INSERT INTO campaigns (campaign_name, contact_number, campaign_date, description, location, latitude, longitude, bloodbank_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $con->prepare($sql);
-    $stmt->bind_param("ssssssdi", $campaignName, $contactNumber, $campaignDate, $description, $address, $latitude, $longitude, $bloodbank_id);
-
-    if ($stmt->execute()) {
-        // header("Location: editDonor.php?success=Profile updated successfully!");
-        header("Location: addCampaign.php?error=New record created successfully!!");
+    if (empty($latitude) || empty($longitude)) {
+        $error = "Invalid Address Please try again!!";
     } else {
-        header("Location:addCampaign.php?error=Failed to create campaign, try again");
-    }
+        $checkSql = "SELECT id FROM campaigns WHERE campaign_name = ? AND campaign_date = ? AND bloodbank_id = ?";
+        $checkStmt = $con->prepare($checkSql);
+        $checkStmt->bind_param("ssi", $campaignName, $campaignDate, $bloodbank_id);
+        $checkStmt->execute();
+        $checkStmt->store_result();
+        
+        if ($checkStmt->num_rows > 0) {
+            $error = "Campaign already added!";
+        } else {
+        $sql = "INSERT INTO campaigns (campaign_name, contact_number, campaign_date, description, location, latitude, longitude, bloodbank_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $con->prepare($sql);
+        $stmt->bind_param("ssssssdd", $campaignName, $contactNumber, $campaignDate, $description, $address, $latitude, $longitude, $bloodbank_id);
 
-    $stmt->close();
-    $con->close();
+        if ($stmt->execute()) {
+            $success = "New record created successfully!!";
+        } else {
+            $error = "Failed to create campaign, try again!!";
+        }
+    }
+}
+   
 }
 ?>
 
@@ -57,26 +68,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
     <script src="../javascript/addressInput.js"></script>
-
 </head>
 
 <body class="bg-gray-200">
     <?php @include ("bloodbankmenu.php"); ?>
     <section class="ml-72 p-8 max-w-4xl">
         <div class="bg-white p-8 rounded-lg shadow-lg">
-            <div class="row">
-                <div class="col-lg-12">
-                    <h1 class="page-header text-3xl font-bold text-center justify-center mb-4">Add Campaign</h1>
-                </div>
-            </div>
+            <h1 class="page-header text-3xl font-bold text-center justify-center mb-4">Add Campaign</h1>
 
-            <?php if (isset($_GET['error'])): ?>
-                <?php
-                $errorMessage = $_GET['error'];
-                $errorClass = ($errorMessage === 'New campaign created successfully!!') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-                ?>
-                <div class="w-full mb-6 p-4 rounded-md text-center font-semibold <?php echo $errorClass; ?>">
-                    <p><?php echo htmlspecialchars($errorMessage); ?></p>
+            <?php if (isset($error) || isset($success)): ?>
+                <div class="w-full mb-6 p-4 rounded-md text-center font-semibold <?php echo isset($error) ? 'bg-red-100 text-red-800 shadow-lg' : 'bg-green-100 text-green-800 shadow-lg '; ?>">
+                    <p><?php echo htmlspecialchars(isset($error) ? $error : $success); ?></p>
                 </div>
             <?php endif; ?>
 
@@ -102,12 +104,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input
                         id="campaignDate"
                         class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline"
-                        type="date" name="campaign_date" required>
+                        type="date" name="campaign_date"  required>
                 </div>
 
                 <div class="mb-4">
                     <label for="location" class="block text-gray-700">Address</label>
-                    <input id="location" type="text" name="location"  class="w-full p-2 border border-gray-300 rounded">
+                    <input id="location" type="text" name="location" placeholder="Enter capaign address" class="w-full p-2 border border-gray-300 rounded">
                     <div id="suggestions" class="suggestions"></div>
                     <input type="hidden" id="userLat" name="latitude">
                     <input type="hidden" id="userLong" name="longitude" >

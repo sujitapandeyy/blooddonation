@@ -86,15 +86,11 @@ if (isset($_SESSION['user_id'])) {
 
                         where every donation is a lifeline. Be a hero.</h1>
                     <div class="mt-20">
-                        <?php if (isset($_SESSION['Dloggedin']) && $_SESSION['Dloggedin'] === true): ?>
-                            <a href="Donordashboard/donaterequest.php"
-                                class="inline-flex items-center mt-6 px-6 py-3 bg-white text-red-500 font-semibold rounded-full shadow hover:bg-red-200 transition ease-in-out duration-300 mb-5">Donate
-                                Now<span class="ml-2 text-xl">➔</span></a>
-                        <?php else: ?>
+                       
                             <a href="donorregister.php"
                                 class="inline-flex  items-center mt-6 px-6 py-3 bg-white text-red-500 font-semibold rounded-full shadow hover:font-extrabold hover:bg-red-100 transition ease-in-out duration-300 mb-5">Donate
                                 Now &nbsp;<span class="text-red-500 hover:text-white font-bold text-2xl">+</span></a>
-                        <?php endif; ?>
+                       
 
                         <a href="searchresult.php"
                             class="ml-2 mb-20 inline-flex items-center px-6 py-3 bg-red-500 text-white font-semibold rounded-full shadow hover:bg-red-300  transition ease-in-out duration-300 ">Search

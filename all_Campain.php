@@ -65,10 +65,10 @@ $result = $stmt->get_result();
 </head>
 
 <body class="bg-gray-100">
-    <section class="bg-red-100 w-full my-10 bg-img">
-        <h2 class="text-4xl font-bold text-center mb-12 text-red-600">Available Campaigns</h2>
+    <section class="bg-white w-full p-20 bg-img">
+    <h2 class="text-4xl  font-serif text-center mb-12 text-red-600">Available Campaigns</h2>
         <div class="relative max-w-6xl mx-auto">
-            <div class="carousel max-w-4xl mx-auto  px-20 gap-10">
+            <div class="carousel max-w-5xl mx-auto  px-20 gap-10">
                 <?php if ($result->num_rows > 0): ?>
                     <?php while ($row = $result->fetch_assoc()): ?>
                         <div class="carousel-item relative bg-white shadow-md rounded-lg overflow-hidden transform transition-transform duration-300 hover:scale-105">
@@ -77,7 +77,7 @@ $result = $stmt->get_result();
                             <div class="absolute inset-x-0 bottom-0 bg-white py-4 px-6 shadow-lg rounded-t-lg">
                                 <h2 class="text-xl font-bold text-gray-900"><?php echo htmlspecialchars($row['campaign_name']); ?></h2>
                                 <p class="text-sm text-gray-600"><?php echo htmlspecialchars($row['campaign_date']); ?></p>
-                                <a href="campaign_detail.php?id=<?php echo $row['id']; ?>" class="inline-block mt-2 bg-red-500 hover:bg-red-400 text-white py-1 px-3 rounded-lg shadow-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <a href="campaign_detail.php?id=<?php echo $row['id']; ?>" class="inline-block mt-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-lg shadow-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                     View More
                                 </a>
                             </div>
@@ -98,33 +98,29 @@ $result = $stmt->get_result();
     </section>
 
     <script>
-    const carousel = document.querySelector('.carousel');
+        const carousel = document.querySelector('.carousel');
+        const itemWidth = document.querySelector('.carousel-item').offsetWidth;
+        const totalItems = document.querySelectorAll('.carousel-item').length;
 
-    const scrollCarousel = (direction) => {
-        const item = document.querySelector('.carousel-item');
-        if (!item) return; // Prevents errors if there are no items
+        const scrollCarousel = (direction) => {
+            carousel.scrollBy({
+                left: itemWidth * direction,
+                behavior: 'smooth'
+            });
 
-        const itemWidth = item.offsetWidth;
+            // Check if the carousel has reached the end
+            if (direction === 1 && carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
+                setTimeout(() => {
+                    carousel.scrollTo({ left: 0, behavior: 'smooth' });
+                }, 500); // Delay for a smooth transition
+            }
+        };
 
-        carousel.scrollBy({
-            left: itemWidth * direction,
-            behavior: 'smooth'
-        });
-
-        // Check if the carousel has reached the end
-        if (direction === 1 && carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
-            setTimeout(() => {
-                carousel.scrollTo({ left: 0, behavior: 'smooth' });
-            }, 500); // Delay for a smooth transition
-        }
-    };
-
-    // Automatic scrolling every 5 seconds
-    setInterval(() => {
-        scrollCarousel(1); // Scroll to the right
-    }, 5000);
-</script>
-
+        // Automatic scrolling every 5 seconds
+        setInterval(() => {
+            scrollCarousel(1); // Scroll to the right
+        }, 5000);
+    </script>
 </body>
 
 </html>
@@ -132,5 +128,3 @@ $result = $stmt->get_result();
 <?php
 $con->close();
 ?>
-
-
