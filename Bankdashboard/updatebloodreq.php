@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($status === 'Completed') {
             // Fetch donor details
             $donorQuery = "
-                SELECT u.email AS donor_email, dr.quantity, d.donor_blood_type, d.weight, d.gender, d.dob ,u.fullname,u.phone,u.address
+                SELECT u.email AS donor_email, dr.quantity, d.donor_blood_type, d.weight, d.gender, d.dob, d.id AS donor_id, u.fullname, u.phone, u.address
                 FROM donation_requests dr 
                 JOIN users u ON dr.donor_email = u.email
                 JOIN donor d ON u.id = d.id 
@@ -84,18 +84,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $fullname = $donorData['fullname'];
                 $phone = $donorData['phone'];
                 $address = $donorData['address'];
+                $donorId = $donorData['donor_id']; // Fetch donor ID
         
                 // Insert into blood_details table
                 $bloodDetailsQuery = "
                 INSERT INTO blood_details 
-                (donor_email, bloodqty, bloodbank_id, collection, bloodgroup, weight, gender, dob, name, contact, address, expire) 
-                VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 42 DAY))
+                (donor_email, bloodqty, bloodbank_id, collection, bloodgroup, weight, gender, dob, name, contact, address, expire, donor_id) 
+                VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 42 DAY), ?)
                 ";
 
                 $bloodDetailsStmt = $con->prepare($bloodDetailsQuery);
-                $bloodDetailsStmt->bind_param("sidsisssss", $donorEmail, $quantity, $bloodBankId, $bloodGroup, $weight, $gender, $dob, $fullname, $phone, $address);
+                $bloodDetailsStmt->bind_param("sidsisssssi", $donorEmail, $quantity, $bloodBankId, $bloodGroup, $weight, $gender, $dob, $fullname, $phone, $address, $donorId);
 
                 if ($bloodDetailsStmt->execute()) {
+                    // Successfully inserted into blood_details, now update last_donation_date in donor table
+                    $updateDonorQuery = "UPDATE donor SET last_donation_date = NOW() WHERE id = ?";
+                    $updateDonorStmt = $con->prepare($updateDonorQuery);
+                    $updateDonorStmt->bind_param("i", $donorId);
+                    $updateDonorStmt->execute();
+                    
                     // Successfully inserted into blood_details, now delete from donation_requests
                     $deleteQuery = "DELETE FROM donation_requests WHERE id = ?";
                     $deleteStmt = $con->prepare($deleteQuery);

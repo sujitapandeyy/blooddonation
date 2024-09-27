@@ -12,7 +12,7 @@ $donor_email = $_SESSION['donoremail'];
 
 // Fetch donor details for editing
 $query = $con->prepare("
-    SELECT u.*, d.donor_blood_type, d.dob, d.weight, d.gender, d.height, d.last_donation_date, d.profile_image
+    SELECT u.*, d.donor_blood_type, d.dob, d.weight, d.gender, d.last_donation_date, d.profile_image
     FROM users u 
     JOIN donor d ON u.id = d.id
     WHERE u.email = ? AND u.user_type = 'Donor'
@@ -67,9 +67,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $latitude = htmlspecialchars(trim($_POST['latitude']));
     $longitude = htmlspecialchars(trim($_POST['longitude']));
     $dob = htmlspecialchars(trim($_POST['dob']));
+    // $dob = htmlspecialchars(trim($_POST['dob']));
+    $dobDate = new DateTime($dob);
+    $today = new DateTime();
+    $age = $today->diff($dobDate)->y;
+
+    if ($age < 18 || $age > 60) {
+        header("Location: editDonor.php?error=Age must be between (18-60) years.");
+        exit();
+    }
     $weight = htmlspecialchars(trim($_POST['weight']));
     $gender = htmlspecialchars(trim($_POST['gender']));
-    $height = htmlspecialchars(trim($_POST['height']));
+    // $height = htmlspecialchars(trim($_POST['height']));
     $last_donation_date = htmlspecialchars(trim($_POST['last_donation_date']));
 
     // Update users table
@@ -84,10 +93,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Update donor details as well
         $sql = $con->prepare("
             UPDATE donor 
-            SET donor_blood_type = ?, dob = ?, weight = ?, gender = ?, height = ?, last_donation_date = ?
+            SET donor_blood_type = ?, dob = ?, weight = ?, gender = ?, last_donation_date = ?
             WHERE id = (SELECT id FROM users WHERE email = ?)
         ");
-        $sql->bind_param("sssssss", $donor_blood_type, $dob, $weight, $gender, $height, $last_donation_date, $donor_email);
+        $sql->bind_param("ssssss", $donor_blood_type, $dob, $weight, $gender, $last_donation_date, $donor_email);
 
         if ($sql->execute()) {
             header("Location: editDonor.php?success=Profile updated successfully!");
@@ -192,13 +201,13 @@ $profile_image = !empty($donor['profile_image']) ? htmlspecialchars($donor['prof
                     </select>
                 </div>
                 <div class="mb-4">
-                    <label for="weight" class="block text-gray-700">Weight</label>
-                    <input type="text" id="weight" name="weight" value="<?php echo htmlspecialchars($donor['weight']); ?>" class="w-full p-2 border border-gray-300 rounded">
+                    <label for="weight" class="block text-gray-700">Weight(kg)</label>
+                    <input type="number" id="weight" name="weight" min="45" max="150" value="<?php echo htmlspecialchars($donor['weight']); ?>" class="w-full p-2 border border-gray-300 rounded">
                 </div>
-                <div class="mb-4">
+                <!-- <div class="mb-4">
                     <label for="height" class="block text-gray-700">Height</label>
                     <input type="text" id="height" name="height" value="<?php echo htmlspecialchars($donor['height']); ?>" class="w-full p-2 border border-gray-300 rounded">
-                </div>
+                </div> -->
                 <div class="mb-4">
                     <label for="last_donation_date" class="block text-gray-700">Last Donation Date</label>
                     <input type="date" id="last_donation_date" name="last_donation_date" value="<?php echo htmlspecialchars($donor['last_donation_date']); ?>" class="w-full p-2 border border-gray-300 rounded">

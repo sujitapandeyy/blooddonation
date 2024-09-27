@@ -19,7 +19,8 @@ $bank = $result->fetch_assoc();
 $bankId = $bank['id'];
 
 // Fetch blood details for the logged-in blood bank
-$sql = "SELECT * FROM blood_details WHERE bloodbank_id = ?";
+$sql = "SELECT * FROM blood_details WHERE bloodbank_id = ? AND expire > CURDATE()";
+$sqlexpire = "SELECT * FROM blood_details WHERE bloodbank_id = ? AND expire < CURDATE()";
 $stmt = $con->prepare($sql);
 $stmt->bind_param('i', $bankId);
 $stmt->execute();
@@ -96,11 +97,9 @@ if (isset($_GET['id'])) {
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['collection']); ?></td>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['expire']); ?></td>
                     <td class="px-4 py-2 border border-gray-300">
-                        <a href="viewBloodDetail.php?id=<?php echo $row['id']; ?>" class="text-blue-500 hover:text-blue-700">
-                            <i class="fas fa-edit"></i>
-                        </a>
+                       
                         <a href="viewBloodDetail.php?id=<?php echo $row['id']; ?>" class="delete-btn text-red-500 hover:text-red-700">
-                            <i class="fas fa-trash"></i>
+                            <i class="fas fa-trash justify-center"></i>
                         </a>
                     </td>
                 </tr>

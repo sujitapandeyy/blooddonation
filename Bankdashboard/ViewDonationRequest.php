@@ -7,8 +7,7 @@ if (!isset($_SESSION['bankemail'])) {
     header("Location: ../login.php?error=Login first");
     exit();
 }
-// After successful login, set session variables
-// $bankid = $_SESSION['bankid'];
+
 $bankEmail = $_SESSION['bankemail'];
 
 // Get blood bank ID
@@ -20,7 +19,6 @@ $result = $stmt->get_result();
 $bank = $result->fetch_assoc();
 $bankId = $bank['id'];
 
-// Define blood type priority (lower number means higher priority)
 $priority = [
     'AB-' => 1,
     'AB+' => 2,
@@ -65,10 +63,11 @@ $requests = $stmt->get_result();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Donation Requests</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/72f30a4d56.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg-white">
-    <?php include("bloodbankmenu.php"); ?>
+    <!-- <?php include("bloodbankmenu.php"); ?> -->
     <section class="ml-72 p-8">
         <h1 class="text-3xl font-bold mb-8">View Donation Requests</h1>
         <?php if (isset($_GET['error'])): ?>

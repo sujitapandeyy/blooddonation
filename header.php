@@ -20,6 +20,7 @@ require('connection.php');
 </head>
 
 <body>
+    
 <section class="bg-white p-4 shadow-md py-4 fixed w-full z-50">
     <div class="container mx-auto h-14 flex items-center justify-between mt-2">
         
@@ -39,12 +40,12 @@ require('connection.php');
 
 
              
-         <div class="name_logo">
+         <div class="ml-4 px-2 rounded-full border-2 border-blue-300">
           
              <?php
-                 $email = $_SESSION['useremail'];
+                 $email = $_SESSION['username'];
                  $trimmedemail = trim($email); // Trim any whitespace from the beginning and end of the user's full name
-                 $firstLetter = substr($trimmedemail, 0, 3); // Retrieve the first character of the trimmed user's full name
+                 $firstLetter = substr($trimmedemail, 0, 1); // Retrieve the first character of the trimmed user's full name
                  $firstLetterCap = ucfirst($firstLetter);
                  echo $firstLetterCap;
              ?>
@@ -56,21 +57,8 @@ require('connection.php');
 
             <?php endif; ?>
 
-            <!-- Donor Section -->
-            <?php if (isset($_SESSION['Dloggedin']) && $_SESSION['Dloggedin'] === true): ?>
-                <a class="flex mr-2 items-center bg-red-500 text-white font-bold py-2 px-4 rounded-full hover:bg-red-600 transition" href="logout.php">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                </a>
-                <a class="flex items-center bg-blue-500 text-white font-bold py-2 px-4 rounded-full hover:bg-blue-600 transition" href="Donordashboard/bloodrequest.php">
-                    <i class="mr-2"></i> View Blood Request
-                </a>
-                <!-- <a class="flex items-center bg-blue-500 text-white font-bold py-2 px-4 rounded-full hover:bg-blue-600 transition" href="Donordashboard/donaterequest.php">
-                    <i class="mr-2"></i> Donate Request
-                </a> -->
-            <?php endif; ?>
-
-            <!-- Show Login if no user or donor is logged in -->
-            <?php if (!isset($_SESSION['Uloggedin']) && !isset($_SESSION['Dloggedin'])): ?>
+           
+            <?php if (!isset($_SESSION['Uloggedin']) && !isset($_SESSION['Uloggedin'])): ?>
                 <a class="flex items-center bg-red-500 text-white font-bold py-2 px-4 rounded-full hover:bg-red-600 transition" href="login.php">
                     <i class="fas fa-sign-in-alt mr-2"></i> Login
                 </a>

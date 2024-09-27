@@ -1,22 +1,33 @@
 <?php
 require('../connection.php');
+session_start();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $requestId = intval($_POST['request_id']);
+    $requestId = $_POST['request_id'];
     $status = $_POST['status'];
-    $appointmentTime = $_POST['appointment_time'] ?? null;
+    $deliveryTime = $_POST['delivery_time'] ?? null; // Optional delivery time
 
-    // Update the request status and appointment time
-    $sql = "UPDATE donation_requests SET status = ?, appointment_time = ? WHERE id = ?";
-    $stmt = $con->prepare($sql);
-    $stmt->bind_param('ssi', $status, $appointmentTime, $requestId);
+    // Debugging: Log received values
+    error_log("Received Request ID: " . $requestId);
+    error_log("Received Status: " . $status);
+    error_log("Received Delivery Time: " . $deliveryTime);
 
-    if ($stmt->execute()) {
-        echo "Status updated successfully.";
+    if ($status === 'Approved' && !empty($deliveryTime)) {
+        error_log("Attempting to update delivery time to: " . $deliveryTime);
+        $sql = "UPDATE blood_requests SET status = ?, delivery_time = ? WHERE id = ?";
+        $stmt = $con->prepare($sql);
+        $stmt->bind_param('ssi', $status, $deliveryTime, $requestId);
     } else {
-        echo "Failed to update status.";
+        $sql = "UPDATE blood_requests SET status = ? WHERE id = ?";
+        $stmt = $con->prepare($sql);
+        $stmt->bind_param('si', $status, $requestId);
     }
 
-    $stmt->close();
+    if ($stmt->execute()) {
+        echo "Status updated successfully!!";
+    } else {
+        error_log("Failed to update: " . $stmt->error); // Log the error
+        echo "Failed to update status: " . $stmt->error; // Return error to user
+    }
 }
 ?>

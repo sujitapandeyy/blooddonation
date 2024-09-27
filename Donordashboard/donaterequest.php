@@ -10,13 +10,13 @@ if (!isset($_SESSION['donoremail'])) {
 
 $donor_email = $_SESSION['donoremail'];
 
-// Fetch available blood banks with additional details for dropdown
+// Fetch available blood banks for dropdown
 $query = $con->prepare("SELECT id, fullname FROM users WHERE user_type = 'BloodBank'");
 $query->execute();
 $blood_banks = $query->get_result();
 
 // Fetch donor details
-$query = $con->prepare("SELECT u.fullname, u.phone, u.address, d.donor_blood_type, d.dob, d.weight, d.gender, d.height, d.last_donation_date, d.availability, d.days_until_eligible FROM users u JOIN donor d ON u.id = d.id WHERE u.email = ? AND u.user_type = 'Donor'");
+$query = $con->prepare("SELECT u.fullname, u.phone, u.address, d.donor_blood_type, d.dob, d.weight, d.gender, d.last_donation_date FROM users u JOIN donor d ON u.id = d.id WHERE u.email = ? AND u.user_type = 'Donor'");
 $query->bind_param("s", $donor_email);
 $query->execute();
 $donor = $query->get_result()->fetch_assoc();
@@ -26,8 +26,49 @@ if (!$donor) {
     exit();
 }
 
+// Calculate days until eligible to donate
+$lastDonationDate = $donor['last_donation_date'];
+$availabilityStatus = "Available";
+$daysUntilEligible = 0;
+
+if ($lastDonationDate) {
+    // Calculate the difference between current date and last donation date
+    $currentDate = new DateTime();
+    $lastDonationDateObj = new DateTime($lastDonationDate);
+    $interval = $currentDate->diff($lastDonationDateObj);
+    $daysSinceLastDonation = $interval->days;
+
+    // Check if 56 days have passed
+    if ($daysSinceLastDonation < 56) {
+        $availabilityStatus = "Not Available";
+        $daysUntilEligible = 56 - $daysSinceLastDonation;
+    }
+}
+
+// Initialize blood bank ID from URL if available
+$blood_bank_id = isset($_GET['id']) ? intval($_GET['id']) : null;
+
+// Fetch the blood bank name based on the ID
+$blood_bank_name = null; 
+if ($blood_bank_id) {
+    $query = $con->prepare("SELECT fullname FROM users WHERE id = ? AND user_type = 'BloodBank'");
+    $query->bind_param("i", $blood_bank_id);
+    $query->execute();
+    $result = $query->get_result();
+    if ($result->num_rows > 0) {
+        $blood_bank = $result->fetch_assoc();
+        $blood_bank_name = htmlspecialchars($blood_bank['fullname']);
+    }
+}
+
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Check if the donor is eligible to donate
+    if ($availabilityStatus === "Not Available") {
+        header("Location: donateRequest.php?error=You cannot donate until $daysUntilEligible days from your last donation.");
+        exit();
+    }
+
     $blood_bank_id = intval($_POST['blood_bank']);
     $quantity = intval($_POST['quantity']);
     $request_message = htmlspecialchars(trim($_POST['message']));
@@ -67,93 +108,90 @@ $donation_history = $query->get_result();
     <script src="https://kit.fontawesome.com/72f30a4d56.js" crossorigin="anonymous"></script>
 </head>
 <body>
-                <!-- <?php include("donorMenu.php"); ?> -->
+    <main class="py-2 px-8">
+        <?php @include'donormenu.php'?>
+        <section class="ml-64 mt-4">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h1 class="text-2xl font-bold text-gray-800 mb-4 text-center">Request Blood Donation</h1>
+                <?php if (isset($_GET['error']) || isset($_GET['success'])): ?>
+                    <?php
+                    $message = isset($_GET['error']) ? $_GET['error'] : $_GET['success'];
+                    $messageClass = isset($_GET['error']) ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800';
+                    ?>
+                    <div class="w-full mb-6 p-4 rounded-md text-center font-semibold <?php echo $messageClass; ?>">
+                        <p><?php echo htmlspecialchars($message); ?></p>
+                    </div>
+                <?php endif; ?>
+                <form action="donateRequest.php" method="POST">
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Blood Bank</label>
+                        <input type="text" value="<?php echo htmlspecialchars($blood_bank_name); ?>" class="w-full p-2 border border-gray-300 rounded" readonly>
+                        <input type="hidden" name="blood_bank" value="<?php echo htmlspecialchars($blood_bank_id); ?>">
+                    </div>
+                    <div class="mb-4">
+                        <label for="quantity" class="block text-gray-700">Quantity (ml)</label>
+                        <input type="number" id="quantity" name="quantity" min="100" max="500" class="w-full p-2 border border-gray-300 rounded" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="message" class="block text-gray-700">Message</label>
+                        <textarea id="message" name="message" rows="4" class="w-full p-2 border border-gray-300 rounded"></textarea>
+                    </div>
+                    <button type="submit" class="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-150">Submit Request</button>
+                </form>
+            </div>
 
-    <main class="ml-64 py-2 px-8">
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-            <h1 class="text-2xl font-bold text-gray-800 mb-4 text-center">Request Blood Donation</h1>
-            <?php if (isset($_GET['error']) || isset($_GET['success'])): ?>
-                <?php
-                $message = isset($_GET['error']) ? $_GET['error'] : $_GET['success'];
-                $messageClass = isset($_GET['error']) ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800';
-                ?>
-                <div class="w-full mb-6 p-4 rounded-md text-center font-semibold <?php echo $messageClass; ?>">
-                    <p><?php echo htmlspecialchars($message); ?></p>
-                </div>
-            <?php endif; ?>
-            <form action="donateRequest.php" method="POST">
-                <div class="mb-4">
-                    <label for="blood_bank" class="block text-gray-700">Select Blood Bank</label>
-                    <select name="blood_bank" id="blood_bank" required class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline">
-                        <option value="" disabled selected>Select Blood Bank</option>
-                        <?php while ($row = $blood_banks->fetch_assoc()): ?>
-                            <option value="<?php echo $row['id']; ?>"><?php echo htmlspecialchars($row['fullname']); ?></option>
+            <!-- Display previous donation requests -->
+            <div class="bg-white p-6 mt-8 rounded-lg shadow-lg">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Previous Donation Requests</h2>
+                <table class="min-w-full bg-white border-collapse border border-gray-200">
+                    <thead>
+                        <tr class="bg-gray-500 text-white">
+                            <th class="px-4 py-2 border border-gray-300">Request Date</th>
+                            <th class="px-4 py-2 border border-gray-300">Blood Bank</th>
+                            <th class="px-4 py-2 border border-gray-300">Quantity (ml)</th>
+                            <th class="px-4 py-2 border border-gray-300">Message</th>
+                            <th class="px-4 py-2 border border-gray-300">Status</th>
+                            <th class="px-4 py-2 border border-gray-300">Appointment Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($request = $previous_requests->fetch_assoc()): ?>
+                            <tr>
+                                <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['request_date']); ?></td>
+                                <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['blood_bank']); ?></td>
+                                <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['quantity']); ?></td>
+                                <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['message']); ?></td>
+                                <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['status']); ?></td>
+                                <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['appointment_time']); ?></td>
+                            </tr>
                         <?php endwhile; ?>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label for="quantity" class="block text-gray-700">Quantity (ml)</label>
-                    <input type="number" id="quantity" name="quantity" min="1" class="w-full p-2 border border-gray-300 rounded" required>
-                </div>
-                <div class="mb-4">
-                    <label for="message" class="block text-gray-700">Message</label>
-                    <textarea id="message" name="message" rows="4" class="w-full p-2 border border-gray-300 rounded"></textarea>
-                </div>
-                <button type="submit" class="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-150">Submit Request</button>
-            </form>
-        </div>
+                    </tbody>
+                </table>
+            </div>
 
-        <!-- Display previous donation requests -->
-        <div class="bg-white p-6 mt-8 rounded-lg shadow-lg">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Previous Donation Requests</h2>
-            <table class="min-w-full bg-white border-collapse border border-gray-200">
-                <thead>
-                    <tr class="bg-gray-500 text-white">
-                        <th class="px-4 py-2 border border-gray-300">Request Date</th>
-                        <th class="px-4 py-2 border border-gray-300">Blood Bank</th>
-                        <th class="px-4 py-2 border border-gray-300">Quantity (ml)</th>
-                        <th class="px-4 py-2 border border-gray-300">Message</th>
-                        <th class="px-4 py-2 border border-gray-300">Status</th>
-                        <th class="px-4 py-2 border border-gray-300">Appointment Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($request = $previous_requests->fetch_assoc()): ?>
-                        <tr>
-                            <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['request_date']); ?></td>
-                            <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['blood_bank']); ?></td>
-                            <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['quantity']); ?></td>
-                            <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['message']); ?></td>
-                            <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['status']); ?></td>
-                            <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($request['appointment_time']); ?></td>
+            <!-- Display donation history -->
+            <div class="bg-white p-6 mt-8 rounded-lg shadow-lg">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Donation History</h2>
+                <table class="min-w-full bg-white border-collapse border border-gray-200">
+                    <thead>
+                        <tr class="bg-gray-500 text-white">
+                            <th class="px-4 py-2 border border-gray-300">Collection Date</th>
+                            <th class="px-4 py-2 border border-gray-300">Blood Quantity</th>
+                            <th class="px-4 py-2 border border-gray-300">Blood Bank</th>
                         </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Display donation history -->
-        <div class="bg-white p-6 mt-8 rounded-lg shadow-lg">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Donation History</h2>
-            <table class="min-w-full bg-white border-collapse border border-gray-200">
-                <thead>
-                    <tr class="bg-gray-500 text-white">
-                        <th class="px-4 py-2 border border-gray-300">Date</th>
-                        <th class="px-4 py-2 border border-gray-300">Quantity (ml)</th>
-                        <th class="px-4 py-2 border border-gray-300">Blood Bank</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($history = $donation_history->fetch_assoc()): ?>
-                        <tr>
-                            <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($history['collection']); ?></td>
-                            <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($history['bloodqty']); ?></td>
-                            <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($history['blood_bank']); ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        <?php while ($history = $donation_history->fetch_assoc()): ?>
+                            <tr>
+                                <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($history['collection']); ?></td>
+                                <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($history['bloodqty']); ?></td>
+                                <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($history['blood_bank']); ?></td>
+                            </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
 </body>
 </html>

@@ -36,6 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
                     case 'donor':
                         $_SESSION['Dloggedin'] = true;
                         $_SESSION['donorname'] = $result_fetch['fullname'];
+                        $_SESSION['donorid'] = $result_fetch['id'];
                         $_SESSION['donoremail'] = $result_fetch['email'];
                         header("Location: Donordashboard/dashboard.php");
                         break;
@@ -48,6 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
                         break;
                     default:
                         $_SESSION['Uloggedin'] = true;
+                        $_SESSION['userid'] = $result_fetch['id'];
                         $_SESSION['username'] = $result_fetch['fullname'];
                         $_SESSION['useremail'] = $result_fetch['email'];
                         header("Location: index.php");
