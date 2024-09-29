@@ -57,7 +57,6 @@ $bloodBankResult = $bloodBankQuery->get_result();
                 <!-- <?php include("donorMenu.php"); ?> -->
 
     <section class="w-full p-10 ml-14">
-            <!-- <?php include("algorithm.php"); ?> -->
 
         <h2 class="text-4xl font-serif text-center mb-12 text-red-600">Available Blood Banks</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">

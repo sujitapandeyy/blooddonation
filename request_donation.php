@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['donor_id'])) {
 
     // Fetch donor details from both `users` and `donor` tables
     $donor_stmt = $con->prepare("
-        SELECT u.fullname, u.email, u.phone, u.latitude, u.longitude, d.donor_blood_type, d.dob, d.weight, d.height, d.gender, d.last_donation_date, d.availability, d.days_until_eligible
+        SELECT u.fullname, u.email, u.phone, u.latitude, u.longitude, d.donor_blood_type, d.dob, d.weight, d.gender, d.last_donation_date
         FROM users u
         JOIN donor d ON u.id = d.id
         WHERE u.id = ?
@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['donor_id'])) {
     <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
     <script src="javascript/addressInput.js"></script>
 </head>
-<body class="bg-gray-100">
+<body class="">
     <?php include("header.php"); ?>
 
     <div class="pt-24 flex flex-col items-center">
@@ -166,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['donor_id'])) {
 
                     <div class="mb-4">
                         <label for="quantity" class="block text-gray-700 font-bold mb-2">Quantity</label>
-                        <input type="number" id="quantity" name="quantity" placeholder="Enter quantity" class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline" required>
+                        <input type="number" id="quantity" name="quantity"min="100" max="500" placeholder="Enter quantity" class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline" required>
                     </div>
 
                     <div class="mb-4">
