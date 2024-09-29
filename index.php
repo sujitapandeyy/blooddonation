@@ -4,6 +4,11 @@ session_start(); ?>
 <?php @include 'header.php'; ?>
 <?php @include 'hero.php'; ?>
 
+<?php
+if (isset($_SESSION['Uloggedin']) && $_SESSION['Uloggedin'] === true) {
+    // @include 'algo.php';
+}
+?>
 
 <?php @include 'bloodbanks.php'; ?>
 
@@ -11,10 +16,5 @@ session_start(); ?>
 
 
 
-<?php
-if (isset($_SESSION['Uloggedin']) && $_SESSION['Uloggedin'] === true) {
-    @include 'campalgo.php';
-}
-?>
 
 <?php @include 'footor.php'; ?>

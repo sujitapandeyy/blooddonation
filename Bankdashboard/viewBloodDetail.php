@@ -19,14 +19,11 @@ $bank = $result->fetch_assoc();
 $bankId = $bank['id'];
 
 // Fetch blood details for the logged-in blood bank
-$sql = "SELECT * FROM blood_details WHERE bloodbank_id = ? AND expire > CURDATE()";
-$sqlexpire = "SELECT * FROM blood_details WHERE bloodbank_id = ? AND expire < CURDATE()";
+$sql = "SELECT * FROM blood_details WHERE bloodbank_id = ?";
 $stmt = $con->prepare($sql);
 $stmt->bind_param('i', $bankId);
 $stmt->execute();
 $result = $stmt->get_result();
-
-
 
 if (isset($_GET['id'])) {
     $delete_id = $_GET['id'];
@@ -42,9 +39,19 @@ if (isset($_GET['id'])) {
         // Redirect with error message
         header("Location: viewBloodDetail.php?error=Failed to delete detail!");
     }
-} else {
-    // Redirect if ID is not set
-    // header("Location: viewBloodDetail.php?error=No detail selected for deletion!");
+}
+
+function calculateDaysUntilExpire($expireDate) {
+    $currentDate = new DateTime();  // Get current date
+    $expireDate = new DateTime($expireDate);  // Convert expire date to DateTime object
+    $interval = $currentDate->diff($expireDate);  // Calculate difference between current date and expire date
+    
+    // Check if it's already expired
+    if ($expireDate < $currentDate) {
+        return "Expired";
+    } else {
+        return $interval->days . " days left";
+    }
 }
 ?>
 
@@ -73,7 +80,7 @@ if (isset($_GET['id'])) {
                 <th class="px-4 py-2 border border-gray-300">Contact</th>
                 <th class="px-4 py-2 border border-gray-300">Blood Quantity</th>
                 <th class="px-4 py-2 border border-gray-300">Collection Date</th>
-                <th class="px-4 py-2 border border-gray-300">Expire Date</th>
+                <th class="px-4 py-2 border border-gray-300">Expire In</th>
                 <th class="px-4 py-2 border border-gray-300">Actions</th>
             </tr>
         </thead>
@@ -85,19 +92,21 @@ if (isset($_GET['id'])) {
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['gender']); ?></td>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['dob']); ?></td>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['weight']); ?></td>
-                    <!-- <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['address']); ?></td> -->
-                    <td class="px-4 py-2 border border-gray-300"><?php $address = htmlspecialchars($row['address']);
-                                    $words = explode(' ', $address); // Split address into words
-                                    $firstThreeWords = implode(' ', array_slice($words, 0, 3)); // Get the first three words
-                                    echo $firstThreeWords;
-                                ?>
-                             </p>
+                    <td class="px-4 py-2 border border-gray-300">
+                        <?php 
+                            $address = htmlspecialchars($row['address']);
+                            $words = explode(' ', $address);
+                            $firstThreeWords = implode(' ', array_slice($words, 0, 3));
+                            echo $firstThreeWords;
+                        ?>
+                    </td>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['contact']); ?></td>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['bloodqty']); ?></td>
                     <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['collection']); ?></td>
-                    <td class="px-4 py-2 border border-gray-300"><?php echo htmlspecialchars($row['expire']); ?></td>
                     <td class="px-4 py-2 border border-gray-300">
-                       
+                        <?php echo calculateDaysUntilExpire($row['expire']); ?>
+                    </td>
+                    <td class="px-4 py-2 border border-gray-300">
                         <a href="viewBloodDetail.php?id=<?php echo $row['id']; ?>" class="delete-btn text-red-500 hover:text-red-700">
                             <i class="fas fa-trash justify-center"></i>
                         </a>
@@ -115,7 +124,7 @@ if (isset($_GET['id'])) {
         <button class="confirm-btn bg-red-600 text-white rounded hover:bg-red-500 px-4 py-1 m-2">Delete</button>
         <button class="cancel-btn bg-gray-400 text-white rounded hover:bg-gray-500 px-4 py-1 m-2">Cancel</button>
     </div>
-</div>  
+</div>
 
 </body>
 <script src="../javascript/delete.js"></script>
