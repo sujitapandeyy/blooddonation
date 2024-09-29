@@ -21,6 +21,23 @@ $stmt = $con->prepare($sql);
 $stmt->bind_param('i', $bankId);
 $stmt->execute();
 $result = $stmt->get_result();
+
+
+if (isset($_GET['id'])) {
+    $delete_id = $_GET['id'];
+
+    // Prepare and execute delete query
+    $stmt = $con->prepare("DELETE FROM campaigns WHERE id = ?");
+    $stmt->bind_param('i', $delete_id);
+
+    if ($stmt->execute()) {
+        // Redirect with success message
+        header("Location: viewCampaigns.php?success=campaigns deleted successfully!");
+    } else {
+        // Redirect with error message
+        header("Location: viewCampaigns.php?error=Failed to delete campaigns!");
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -44,6 +61,7 @@ $result = $stmt->get_result();
                     <th class="px-4 py-2 border border-gray-300">Campaign Date</th>
                     <th class="px-4 py-2 border border-gray-300">Description</th>
                     <th class="px-4 py-2 border border-gray-300">Location</th>
+                    <th class="px-4 py-2 border border-gray-300">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -68,6 +86,11 @@ $result = $stmt->get_result();
                         echo htmlspecialchars($row['location']);;
                         ?>
                         </td>
+                        <td class="px-4 py-2 border border-gray-300">
+                        <a href="viewCampaigns.php?id=<?php echo $row['id']; ?>" class="delete-btn text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash justify-center"></i>
+                        </a>
+                    </td>
                     </tr>
                 <?php } ?>
     <?php else: ?>
@@ -80,9 +103,14 @@ $result = $stmt->get_result();
     </section>
 </body>
 
-</html>
+<div class="delete-box fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white p-5 rounded-lg text-center">
+        <p>Are you sure you want to delete?</p>
+        <button class="confirm-btn bg-red-600 text-white rounded hover:bg-red-500 px-4 py-1 m-2">Delete</button>
+        <button class="cancel-btn bg-gray-400 text-white rounded hover:bg-gray-500 px-4 py-1 m-2">Cancel</button>
+    </div>
+</div>
 
-<?php
-$stmt->close();
-$con->close();
-?>
+</body>
+<script src="../javascript/delete.js"></script>
+</html>

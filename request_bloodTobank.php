@@ -96,10 +96,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if ($insert_stmt->execute()) {
                     // Update blood quantity in blood_details
-                    $update_sql = "UPDATE blood_details SET bloodqty = bloodqty - ? WHERE bloodbank_id = ? AND bloodgroup = ?";
-                    $update_stmt = $con->prepare($update_sql);
-                    $update_stmt->bind_param('iis', $quantity, $bloodBankId, $bloodgroup);
-                    $update_stmt->execute();
+                    // $update_sql = "UPDATE blood_details SET bloodqty = bloodqty - ? WHERE bloodbank_id = ? AND bloodgroup = ?";
+                    // $update_stmt = $con->prepare($update_sql);
+                    // $update_stmt->bind_param('iis', $quantity, $bloodBankId, $bloodgroup);
+                    // $update_stmt->execute();
 
                     $success_message = "Your request has been submitted successfully.";
                 } else {

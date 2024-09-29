@@ -63,9 +63,9 @@ if (!empty($userBloodbankRatings)) {
         $bloodbankId = $campaign['bloodbank_id'];
 
         // Check if user has rated the blood bank associated with the campaign
-        if (isset($userBloodbankRatings[$bloodbankId]) && $userBloodbankRatings[$bloodbankId] > 2) {
-            // Calculate cosine similarity
-            $similarityScore = cosineSimilarity([$userBloodbankRatings[$bloodbankId]], [1]); // Assuming binary rating (1 for rated)
+        if (isset($userBloodbankRatings[$bloodbankId]) && $userBloodbankRatings[$bloodbankId] > 2) { // Assuming 2 is the minimum rating to consider
+            // Calculate cosine similarity with respect to a higher threshold (5 assumed as max rating)
+            $similarityScore = cosineSimilarity([$userBloodbankRatings[$bloodbankId]], [1]); 
 
             // Calculate distance between user and campaign
             $distance = haversineDistance($userLocation['latitude'], $userLocation['longitude'], $campaign['latitude'], $campaign['longitude']);
@@ -80,11 +80,7 @@ if (!empty($userBloodbankRatings)) {
     if (!empty($similarityScores)) {
         arsort($similarityScores);
         $recommendedCampaigns = array_slice(array_keys($similarityScores), 0, 3); // Get top 3 recommended campaigns
-    } else {
-        echo "No campaigns recommended for user ID: $loggedInUserId.";
     }
-} else {
-    echo "No ratings found for user ID: $loggedInUserId.";
 }
 
 $con->close();

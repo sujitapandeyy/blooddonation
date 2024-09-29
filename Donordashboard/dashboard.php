@@ -123,7 +123,7 @@ $totalPendingRequests = $rowPending['total_pending_requests'] ?? 0;
         </div>
         <div class="ml-2">
         <?php @include "algorithm.php"?>
-      <?php  @include '../campalgo.php';?>
+      <!-- <?php  @include '../campalgo.php';?> -->
 
     </div>
     </Section>

@@ -39,7 +39,7 @@ $stmt->bind_param("i", $bloodBankId);
 $stmt->execute();
 $result = $stmt->get_result();
 $rowPending = $result->fetch_assoc();
-$totalPendingRequests = $rowPending['total_pending_requests'] ?? 0;
+$totalDonationRequests = $rowPending['total_pending_requests'] ?? 0;
 
 // Fetch total donation requests for this blood bank
 $totalDonationRequestsQuery = "
@@ -51,7 +51,7 @@ $stmt->bind_param("i", $bloodBankId);
 $stmt->execute();
 $result = $stmt->get_result();
 $rowRequests = $result->fetch_assoc();
-$totalDonationRequests = $rowRequests['total_donation_requests'] ?? 0;
+$totalPendingRequests = $rowRequests['total_donation_requests'] ?? 0;
 
 // Fetch blood type distribution
 $sql = "SELECT bloodgroup, SUM(bloodqty) as total_qty FROM blood_details WHERE bloodbank_id = ? GROUP BY bloodgroup";

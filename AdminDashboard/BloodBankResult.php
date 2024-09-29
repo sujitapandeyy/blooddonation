@@ -41,7 +41,7 @@ $bloodBank = $bankResult->fetch_assoc();
 </head>
 
 <body class="bg-gray-200 font-sans">
-    <?php @include('header.php'); ?>
+    <!-- <?php @include('header.php'); ?> -->
     <section class="container max-w-5xl mx-auto pt-32 pb-16">
         <h1 class="text-4xl font-bold mb-8 text-gray-900 text-center">Available Blood Details of <?php echo htmlspecialchars($bloodBank['fullname']); ?></h1>
         <?php if ($bloodDetailsResult->num_rows > 0) { ?>
