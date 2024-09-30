@@ -5,7 +5,7 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $requestId = $_POST['request_id'];
     $status = $_POST['status'];
-    $deliveryTime = $_POST['delivery_time'] ?? null; // Optional delivery time
+    $deliveryTime = $_POST['delivery_time'] ?? null; 
 
     // Fetch the blood bank ID from the session
     if (!isset($_SESSION['bankemail'])) {
@@ -33,17 +33,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $requestedBloodGroup = $request['bloodgroup'];
 
     if ($status === 'Approved') {
-        // Fetch all available blood quantities for the requested blood group and order by expiry date
         $sql = "SELECT id, bloodqty, expire FROM blood_details WHERE bloodgroup = ? AND expire > CURDATE() AND bloodbank_id = ? ORDER BY expire ASC";
         $stmt = $con->prepare($sql);
-        $stmt->bind_param('si', $requestedBloodGroup, $bankId); // Use the current blood bank's ID
+        $stmt->bind_param('si', $requestedBloodGroup, $bankId); 
         $stmt->execute();
         $result = $stmt->get_result();
 
         $totalAvailableQty = 0;
         $bloodDetailsRecords = [];
 
-        // Collect all valid records (those not expired) and calculate total available quantity
+        // Collect all valid bloodqty and calculate total available quantity
         while ($row = $result->fetch_assoc()) {
             // Check if the expire date is in the future
             if (strtotime($row['expire']) > strtotime(date('Y-m-d'))) {
@@ -56,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($requestedQty <= $totalAvailableQty) {
             $remainingQtyToReduce = $requestedQty;
 
-            // Loop through each blood_details record to reduce the quantity proportionally
             foreach ($bloodDetailsRecords as $bloodDetails) {
                 $availableQty = $bloodDetails['bloodqty'];
                 $bloodDetailsId = $bloodDetails['id'];

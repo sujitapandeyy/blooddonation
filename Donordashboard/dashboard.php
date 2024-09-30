@@ -6,7 +6,6 @@ if (!isset($_SESSION['donoremail'])) {
     header("Location: ../login.php?error=Login first");
     exit();
 }
-// deleteExpiredBloodRecords($con);
 
 
 // Fetch logged-in donor details
@@ -96,23 +95,18 @@ $totalPendingRequests = $rowPending['total_pending_requests'] ?? 0;
 
     <Section class="ml-64 px-4">
         <div class="bg-white p-6 rounded-lg">
-        <!-- <h2 class="text-4xl  font-serif mb-12 text-red-600">Dashboard</h2> -->
 
-            <!-- Summary Card Section -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                 
-                <!-- Total Donation Requests -->
                 <div class="bg-blue-500 text-white p-6 rounded-lg">
                     <h3 class="text-xl font-bold">Blood Requests</h3>
                     <p class="text-2xl"><?php echo htmlspecialchars($totalPendingRequests); ?></p>
                 </div>
 
-                <!-- Total Donations -->
                 <div class="bg-yellow-400 text-white p-6 rounded-lg">
                     <h3 class="text-xl font-bold">Total Donations</h3>
                     <p class="text-2xl"><?php echo htmlspecialchars($totalDonations); ?></p>
                 </div>
-                <!-- Availability Status -->
                 <div class="<?php echo ($availabilityStatus === 'Available') ? 'bg-green-500' : 'bg-red-500'; ?> text-white p-6 rounded-lg">
                  <h3 class="text-xl font-bold">Availability Status</h3>
                  <p class="text-xl"><?php echo htmlspecialchars($availabilityStatus === "Available" ? "Available" : "Donate after $daysUntilEligible days"); ?></p>

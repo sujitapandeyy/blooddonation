@@ -30,6 +30,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (empty($latitude) || empty($longitude)) {
         $error = "Invalid Address Please try again!!";
+    } elseif (!preg_match('/^\d{10}$/', $contactNumber)) { // Validate phone number
+        $error = "Phone number invalid!";
     } else {
         $checkSql = "SELECT id FROM campaigns WHERE campaign_name = ? AND campaign_date = ? AND bloodbank_id = ?";
         $checkStmt = $con->prepare($checkSql);
@@ -109,7 +111,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <div class="mb-4">
                     <label for="location" class="block text-gray-700">Address</label>
-                    <input id="location" type="text" name="location" placeholder="Enter capaign address" class="w-full p-2 border border-gray-300 rounded">
+                    <input id="location" type="text" name="location" placeholder="Enter capaign address" required class="w-full p-2 border border-gray-300 rounded">
                     <div id="suggestions" class="suggestions"></div>
                     <input type="hidden" id="userLat" name="latitude">
                     <input type="hidden" id="userLong" name="longitude" >

@@ -6,7 +6,7 @@ session_start(); ?>
 
 <?php
 if (isset($_SESSION['Uloggedin']) && $_SESSION['Uloggedin'] === true) {
-    // @include 'algo.php';
+    // @include 'a.php';
 }
 ?>
 

@@ -119,8 +119,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['donor_id'])) {
                     <p class="mb-2"><strong>Blood Type:</strong> <?= htmlspecialchars($donor['donor_blood_type'] ?? '') ?></p>
                     <p class="mb-2"><strong>Gender:</strong> <?= htmlspecialchars($donor['gender'] ?? '') ?></p>
                     <p class="mb-2"><strong>DOB:</strong> <?= htmlspecialchars($donor['dob'] ?? '') ?></p>
-                    <p class="mb-2"><strong>Last Donation Date:</strong> <?= htmlspecialchars($donor['last_donation_date'] ?? '') ?></p>
-                    <p class="mb-2"><strong>Availability:</strong> <?= htmlspecialchars($donor['availability'] ?? '') ?></p>
+                    <!-- <p class="mb-2"><strong>Last Donation Date:</strong> <?= htmlspecialchars($donor['last_donation_date'] ?? '') ?></p> -->
+                    <!-- <p class="mb-2"><strong>Availability:</strong> <?= htmlspecialchars($donor['availability'] ?? '') ?></p> -->
                 </div>
             </div>
 

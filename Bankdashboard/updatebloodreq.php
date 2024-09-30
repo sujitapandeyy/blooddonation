@@ -4,20 +4,16 @@ require('../connection.php');
 // Start the session
 session_start();
 
-// Check if the request is POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get the parameters from the POST request
     $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
     $status = isset($_POST['status']) ? $_POST['status'] : '';
     $appointment_time = isset($_POST['appointment_time']) ? $_POST['appointment_time'] : null;
 
-    // Validate that an ID and status were provided
     if ($id <= 0 || empty($status)) {
         echo "Invalid request data";
         exit();
     }
 
-    // Get bank_email from session
     if (!isset($_SESSION['bankemail'])) {
         echo "Blood bank email not found in session.";
         exit();
@@ -38,10 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $bloodBankId = $bankData['id'];
 
-    // Prepare the SQL query to update the donation request
     $query = "UPDATE donation_requests SET status = ?, responsetime = NOW()";
 
-    // Add appointment_time to the query if the status is 'Approved' and appointment time is provided
     if ($status === 'Approved' && !empty($appointment_time)) {
         $query .= ", appointment_time = ?";
     }
@@ -56,11 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("si", $status, $id);
     }
 
-    // Execute the query for donation request
     if ($stmt->execute()) {
-        // If status is completed, update blood_details table
         if ($status === 'Completed') {
-            // Fetch donor details
             $donorQuery = "
                 SELECT u.email AS donor_email, dr.quantity, d.donor_blood_type, d.weight, d.gender, d.dob, d.id AS donor_id, u.fullname, u.phone, u.address
                 FROM donation_requests dr 
@@ -97,7 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $bloodDetailsStmt->bind_param("sidsisssssi", $donorEmail, $quantity, $bloodBankId, $bloodGroup, $weight, $gender, $dob, $fullname, $phone, $address, $donorId);
 
                 if ($bloodDetailsStmt->execute()) {
-                    // Successfully inserted into blood_details, now update last_donation_date in donor table
                     $updateDonorQuery = "UPDATE donor SET last_donation_date = NOW() WHERE id = ?";
                     $updateDonorStmt = $con->prepare($updateDonorQuery);
                     $updateDonorStmt->bind_param("i", $donorId);

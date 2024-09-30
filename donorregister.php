@@ -23,19 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
     $address = validate($_POST['address']);
     $latitude = validate($_POST['latitude']);
     $longitude = validate($_POST['longitude']);
-    // Check if latitude and longitude are missing
-    if (empty($latitude) || empty($longitude)) {
-        $error="Invalid Address. Please try again.";
-    }
     $dob = validate($_POST['dob']);
-    $dobDate = new DateTime($dob);
-    $today = new DateTime();
-    $age = $today->diff($dobDate)->y;
-
-    if ($age < 18 || $age > 60) {
-        $error = "Age must be between (18-60) years.";
-        exit();
-    }
     $gender = validate($_POST['gender']);
     $blood_group = validate($_POST['blood_group']);
     $weight = validate($_POST['weight']);
@@ -43,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
     $user_type = validate($_POST['user_type']);
 
     // Check for empty fields
-    if (empty($fullname) || empty($email) || empty($password) || empty($confirm_password) || empty($phone) || empty($address) || empty($dob) || empty($gender) || empty($blood_group)|| empty($weight) || empty($user_type)) {
+      if (empty($fullname) || empty($email) || empty($password) || empty($confirm_password) || empty($phone) || empty($address) || empty($dob) || empty($gender) || empty($blood_group) || empty($weight) || empty($user_type)) {
         $error = "Please fill all the fields!";
     } elseif (empty($latitude) || empty($longitude)) {
         $error = "Enter correct address";
@@ -53,6 +41,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
         $error = "Invalid email format!";
     } elseif ($password !== $confirm_password) {
         $error = "Password and confirm password do not match!";
+    } elseif (!preg_match('/^\d{10}$/', $phone)) { // Validate phone number
+        $error = "Phone number invalid!";
     } else {
         // Check if email already exists
         $stmt = $con->prepare("SELECT * FROM users WHERE email = ? AND user_type = ?");
@@ -62,23 +52,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
 
         if ($result->num_rows > 0) {
             $error = "Email already exists for this user type";
-        } else { 
-            $currentDate = new DateTime();
-            $last_donation_date_str = !empty($last_donation_date) ? $last_donation_date : $currentDate->modify('-58 days')->format('Y-m-d');
-                    
+        } else {
+            // Calculate availability and eligibility
+            $availability = 'Available'; // Default value
+            $days_until_eligible = NULL; // Default value
+
+            if (!empty($last_donation_date)) {
+                $last_donation_date_obj = new DateTime($last_donation_date);
+                $current_date = new DateTime();
+                $interval = $current_date->diff($last_donation_date_obj);
+                $months = ($interval->y * 12) + $interval->m;
+
+                if ($months < 3) {
+                    $availability = 'Not Available';
+                    $days_until_eligible = 90 - ($interval->days % 90);
+                }
+                // Convert the DateTime object to a string format for SQL insertion
+                $last_donation_date_str = $last_donation_date_obj->format('Y-m-d');
+            } else {
+                // If no last donation date is provided, set to NULL
+                $last_donation_date_str = NULL;
+            }
+
             // Insert new donor into the users and donor tables
             $hashed_password = password_hash($password, PASSWORD_BCRYPT);
             $stmt = $con->prepare("INSERT INTO users (fullname, email, password, phone, address, user_type, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("ssssssss", $fullname, $email, $hashed_password, $phone, $address, $user_type, $latitude, $longitude);
-        
+
             if ($stmt->execute()) {
                 $user_id = $con->insert_id;
                 $stmt = $con->prepare("INSERT INTO donor (id, donor_blood_type, dob, weight, gender, last_donation_date) VALUES (?, ?, ?, ?, ?, ?)");
                 $stmt->bind_param("isssss", $user_id, $blood_group, $dob, $weight, $gender, $last_donation_date_str);
-        
+
                 if ($stmt->execute()) {
                     header("Location: login.php?error=Donor Registration successful! You can now login!!");
-                    exit(); 
                 } else {
                     $error = "Failed to register donor details.";
                 }
@@ -86,7 +93,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
                 $error = "Failed to register user.";
             }
         }
-        
     }
 }
 ?>
@@ -112,7 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
     </style>
 </head>
 
-<body class="bg-white">
+<body class="bg-gray-200">
     <?php @include 'header.php'; ?>
 
     <section id="registration" class="flex items-center justify-center min-h-screen bg-gray-100 pt-32">
@@ -120,17 +126,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
             <h2 class="text-3xl font-bold text-center text-red-500 mb-6">Donor Register</h2>
 
             <form action="donorregister.php" name="donorRegistrationForm" method="post" class="space-y-6">
-
-            <?php if (isset($_GET['error']) || isset($_GET['success'])): ?>
-                <?php
-                $message = isset($_GET['error']) ? $_GET['error'] : $_GET['success'];
-                $messageClass = isset($_GET['error']) ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800';
-                ?>
-                <div class="w-full mb-6 p-4 rounded-md text-center font-semibold <?php echo $messageClass; ?>">
-                    <p><?php echo htmlspecialchars($message); ?></p>
-                </div>
-            <?php endif; ?>
-
+                <?php if (isset($error)) : ?>
+                    <div class="formerror text-center"><?php echo $error; ?></div>
+                <?php endif; ?>
+                <?php if (isset($success)) : ?>
+                    <div class="formerror text-center text-green-500"><?php echo $success; ?></div>
+                <?php endif; ?>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Left Section: Personal Information -->
                     <div>
@@ -190,14 +191,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
                             </select>
                         </div>
 
-                        <!-- <div class="mb-4">
-                            <label class="block text-gray-700 font-bold mb-2" for="height">Height (cm)</label>
-                            <input class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline" type="number" step="0.1" placeholder="Enter Height" name="height" id="donorHeight" required>
-                        </div> -->
+                       
 
                         <div class="mb-4">
                             <label class="block text-gray-700 font-bold mb-2" for="weight">Weight (kg)</label>
-                            <input class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline" type="number" step="0.1" placeholder="Enter Weight" max="150" min="45" name="weight" id="donorWeight" required>
+                            <input class="shadow border rounded w-full p-2 text-gray-700 focus:outline-none focus:shadow-outline" type="number" step="0.1" placeholder="Enter Weight" name="weight" id="donorWeight" required>
                         </div>
 
                         <div class="mb-4">

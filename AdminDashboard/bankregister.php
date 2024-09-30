@@ -25,7 +25,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
     $phone = htmlspecialchars(trim($_POST['phone']));
     $address = validate($_POST['address']);
     $latitude = validate($_POST['latitude']);
-    $longitude = validate($_POST['longitude']);    $user_type = 'BloodBank'; // BloodBank user type set explicitly
+    $longitude = validate($_POST['longitude']);   
+    $user_type = 'BloodBank'; 
     $service_type = htmlspecialchars(trim($_POST['servicehour']));
     $custom_hours_start = isset($_POST['customHoursStart']) ? htmlspecialchars(trim($_POST['customHoursStart'])) : null;
     $custom_hours_end = isset($_POST['customHoursEnd']) ? htmlspecialchars(trim($_POST['customHoursEnd'])) : null;
@@ -104,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
                 $sql_bloodbank->bind_param("issss", $bloodbank_id, $service_type, $service_start_time, $service_end_time, $image_path);
 
                 if ($sql_bloodbank->execute()) {
-                    header("Location: bloodBankResult.php?success=Registration successful! BloodBank can login now!!");
+                    header("Location: BloodBankResult.php?success=Registration successful! BloodBank can login now!!");
                 } else {
                     header("Location: bankregister.php?error=Failed to register blood bank details.");
                 }

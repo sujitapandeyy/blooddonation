@@ -2,7 +2,7 @@
 require('../connection.php');
 session_start();
 
-// Check if user is logged in
+// Check if the user is logged in
 if (!isset($_SESSION['donoremail'])) {
     header("Location: ../login.php?error=Login first");
     exit();
@@ -93,11 +93,13 @@ function recommendBloodBanks($userId, $similarUsers, $userInteractions) {
 
         foreach ($similarInteractions as $bloodBankId => $interactionValue) {
             if (!isset($userInteractions[$bloodBankId])) { // Only recommend if the user hasn't interacted with it
-                // Add weighted interaction value (by similarity score)
-                if (!isset($recommendedBloodBanks[$bloodBankId])) {
-                    $recommendedBloodBanks[$bloodBankId] = 0;
+                // Add weighted interaction value (by similarity score) only if rated highly (e.g., > 3)
+                if ($interactionValue > 3) {
+                    if (!isset($recommendedBloodBanks[$bloodBankId])) {
+                        $recommendedBloodBanks[$bloodBankId] = 0;
+                    }
+                    $recommendedBloodBanks[$bloodBankId] += ($interactionValue * $similarity);
                 }
-                $recommendedBloodBanks[$bloodBankId] += ($interactionValue * $similarity);
             }
         }
     }
@@ -112,59 +114,8 @@ $userInteractions = getUserInteractions($userId, $con);
 // Step 2: Find similar users based on common interactions using rating similarity
 $similarUsers = getSimilarUsers($userId, $userInteractions, $con);
 
-// Step 3: Display detailed information about similar users and their interactions
-// echo "<h3>Similar Users and Their Interactions:</h3>";
-if (count($similarUsers) > 0) {
-    $highestSimilarity = null;
-    $lowestSimilarity = null;
-    $highestUser = null;
-    $lowestUser = null;
-
-    foreach ($similarUsers as $similarUserId => $similarData) {
-        $similarity = $similarData['similarity'];
-        $similarInteractions = $similarData['interactions'];
-
-        // Track the highest and lowest similarity users
-        if ($highestSimilarity === null || $similarity > $highestSimilarity) {
-            $highestSimilarity = $similarity;
-            $highestUser = $similarUserId;
-        }
-
-        if ($lowestSimilarity === null || $similarity < $lowestSimilarity) {
-            $lowestSimilarity = $similarity;
-            $lowestUser = $similarUserId;
-        }
-
-        // echo "<p><strong>User ID:</strong> $similarUserId <br>";
-        // echo "<strong>Similarity Score:</strong> $similarity <br>";
-        // echo "<strong>Interactions:</strong><br>";
-
-        foreach ($similarInteractions as $bloodBankId => $interactionValue) {
-            // echo "Blood Bank ID: $bloodBankId, Value: $interactionValue<br>";
-        }
-
-        echo "</p>";
-    }
-
-    // Display highest and lowest similarity users
-    // echo "<h4>Highest Similarity User: $highestUser (Similarity: $highestSimilarity)</h4>";
-    // echo "<h4>Lowest Similarity User: $lowestUser (Similarity: $lowestSimilarity)</h4>";
-} else {
-    // echo "No similar users found.<br>";
-}
-
-// Step 4: Recommend blood banks based on similar users' preferences
+// Step 3: Recommend blood banks based on similar users' preferences
 $recommendedBloodBanks = recommendBloodBanks($userId, $similarUsers, $userInteractions);
-
-// Step 5: Display recommendations
-// echo "<h3>Recommended Blood Banks:</h3>";
-if (count($recommendedBloodBanks) > 0) {
-    foreach ($recommendedBloodBanks as $bloodBankId) {
-        // echo "Recommended Blood Bank ID: $bloodBankId <br>";
-    }
-} else {
-    // echo "No new blood banks to recommend.";
-}
 ?>
 
 <!DOCTYPE html>
@@ -233,8 +184,6 @@ if (count($recommendedBloodBanks) > 0) {
         } else {
             echo "No new blood banks to recommend.";
         }
-        
-       
         ?>
     </div>
 </body>

@@ -43,8 +43,8 @@ if (isset($_GET['id'])) {
 
 function calculateDaysUntilExpire($expireDate) {
     $currentDate = new DateTime();  // Get current date
-    $expireDate = new DateTime($expireDate);  // Convert expire date to DateTime object
-    $interval = $currentDate->diff($expireDate);  // Calculate difference between current date and expire date
+    $expireDate = new DateTime($expireDate);  
+    $interval = $currentDate->diff($expireDate);  
     
     // Check if it's already expired
     if ($expireDate < $currentDate) {

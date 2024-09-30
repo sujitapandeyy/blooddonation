@@ -41,13 +41,15 @@ $bloodBankId = intval($_GET['id']);
 
 // Fetch available quantity for the blood group
 function getAvailableQuantity($con, $bloodBankId, $bloodGroup) {
-    $sql = "SELECT SUM(bloodqty) as total_quantity FROM blood_details WHERE bloodbank_id = ? AND bloodgroup = ?";
+    $sql = "SELECT SUM(bloodqty) as total_quantity FROM blood_details 
+            WHERE bloodbank_id = ? AND bloodgroup = ? AND expire > NOW()";
     $stmt = $con->prepare($sql);
     $stmt->bind_param('is', $bloodBankId, $bloodGroup);
     $stmt->execute();
     $result = $stmt->get_result();
     return $result->fetch_assoc()['total_quantity'] ?? 0;
 }
+
 
 // Handle blood request form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

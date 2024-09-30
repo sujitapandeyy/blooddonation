@@ -154,7 +154,6 @@ $requests = $stmt->get_result();
         const requestId = $(this).data('request-id');
         const newStatus = $(this).val();
 
-        // Show modal if status is 'Approved'
         if (newStatus === 'Approved') {
             currentRequestId = requestId;
             $('#appointmentModal').removeClass('hidden');
@@ -174,7 +173,7 @@ $requests = $stmt->get_result();
             }, function(response) {
                 $('#appointmentModal').addClass('hidden');
                 alert(response);
-                location.reload(); // Reload page on success
+                location.reload(); 
             }).fail(function() {
                 alert('Failed to save appointment. Please try again.');
             });
@@ -188,11 +187,10 @@ $requests = $stmt->get_result();
         $('#appointmentModal').addClass('hidden');
     });
 
-    // Function to update status via AJAX
     function updateStatus(id, status) {
         $.post('updatebloodreq.php', { id: id, status: status }, function(response) {
             alert(response);
-            location.reload(); // Reload the page after status update
+            location.reload(); 
         }).fail(function() {
             alert('Failed to communicate with the server. Please try again.');
         });

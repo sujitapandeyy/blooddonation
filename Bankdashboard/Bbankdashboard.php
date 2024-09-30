@@ -102,7 +102,7 @@ $result = $stmt->get_result();
     <!-- <?php include("bloodbankmenu.php"); ?> -->
     <div>
 
-        <div class="mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 ml-80">
+        <div class="mx-auto grid grid-cols-3 gap-4 mb-4 ml-80">
             <!-- Total Donation Requests -->
             <div class="bg-blue-500 text-white p-6 rounded-lg">
                 <h3 class="text-xl font-bold">Pending Blood Requests</h3>
