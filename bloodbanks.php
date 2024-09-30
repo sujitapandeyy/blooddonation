@@ -31,7 +31,7 @@ $bloodBankResult = $bloodBankQuery->get_result();
 <body class="">
     <section class=" w-full p-10 ">
         <h2 class="text-4xl  font-serif text-center mb-12 text-red-600">Available Blood Banks</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             <?php while ($row = $bloodBankResult->fetch_assoc()) {
                 $bloodBankId = $row['id'];
 

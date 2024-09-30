@@ -180,22 +180,22 @@ $con->close();
     </style>
 </head>
 
-<body class="bg-gray-200 font-sans">
+<body class="bg-gray-100 font-sans">
     <?php include('header.php'); ?>
     
-
+    
     <section class="pt-24 pb-16">
-        <div class="hero-image w-full h-60 bg-gray-300 relative flex flex-cols">
+        <div class="hero-image w-full h-60  relative flex flex-cols">
             <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                <div class="text-white font-bold w-full p-6 shadow-md mb-6">
+                <div class="text-white font-bold w-full p-6  mb-6">
                     <h2 class="text-3xl text-center text-white font-semibold mb-4">
                         <?= htmlspecialchars($bloodBank['fullname'], ENT_QUOTES, 'UTF-8'); ?></h2>
+                    </div>
                 </div>
             </div>
-        </div>
-<!-- Display similar blood banks -->
-
-        <div class="flex container mx-auto flex-col lg:flex-row lg:space-x-10">
+            <!-- Display similar blood banks -->
+            
+            <div class="flex container mx-auto  justify-center  ">
             <div class="px-4 mt-10 w-2/3">
                 <div class="flex-cols gap-2">
                     <div class="text-black p-6 bg-white w-full shadow-md">

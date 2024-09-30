@@ -11,13 +11,6 @@ $selectedBankQuery->bind_param('i', $bloodBankId);
 $selectedBankQuery->execute();
 $selectedBank = $selectedBankQuery->get_result()->fetch_assoc();
 
-// Fetch average rating for the selected bank
-$ratingQuery = $con->prepare("SELECT AVG(rating) as average_rating FROM blood_bank_ratings WHERE blood_bank_id = ?");
-$ratingQuery->bind_param('i', $bloodBankId);
-$ratingQuery->execute();
-$ratingResult = $ratingQuery->get_result()->fetch_assoc();
-$selectedBank['average_rating'] = $ratingResult['average_rating'];
-
 // Initialize available blood types if not set
 $selectedBank['available_blood_types'] = [];
 
@@ -58,13 +51,6 @@ $nonRecommendedBanks = [];
 
 // Loop through all banks to calculate similarity
 while ($bank = $allBanksResult->fetch_assoc()) {
-    // Fetch average rating for this bank
-    $ratingQuery = $con->prepare("SELECT AVG(rating) as average_rating FROM blood_bank_ratings WHERE blood_bank_id = ?");
-    $ratingQuery->bind_param('i', $bank['id']);
-    $ratingQuery->execute();
-    $ratingResult = $ratingQuery->get_result()->fetch_assoc();
-    $bank['average_rating'] = $ratingResult['average_rating'];
-
     // Initialize the available blood types
     $bank['available_blood_types'] = [];
 
@@ -117,30 +103,18 @@ while ($bank = $allBanksResult->fetch_assoc()) {
         $distanceScore = 0;
     }
 
-    // Calculate average rating score
-    $averageRatingScore = 0;
-    if ($selectedBank['average_rating'] == $bank['average_rating']) {
-        $averageRatingScore = 1; // Same rating
-    } elseif ($selectedBank['average_rating'] < $bank['average_rating']) {
-        $averageRatingScore = 0.8; // Less similar if the bank's rating is higher
-    } else {
-        $averageRatingScore = 0.6; // Less similar if the bank's rating is lower
-    }
-
     // Define a similarity score
-    $similarityScore = $serviceOverlapScore + $distanceScore + $averageRatingScore + $bloodTypeScore;
+    $similarityScore = $serviceOverlapScore + $distanceScore + $bloodTypeScore;
 
     // Classify banks into similar and non-recommended based on similarity score
     if ($similarityScore > 0) {
         $similarBanks[] = [
             'id' => $bank['id'],
             'fullname' => $bank['fullname'],
-            'average_rating' => round($bank['average_rating'], 1),
             'similarity_score' => $similarityScore,
             'details' => [
                 'Service Hours Overlap' => $serviceOverlapScore,
                 'Distance' => $distanceScore,
-                'Average Rating' => $averageRatingScore,
                 'Blood Type Match' => $bloodTypeScore,
             ],
         ];
@@ -149,12 +123,10 @@ while ($bank = $allBanksResult->fetch_assoc()) {
         $nonRecommendedBanks[] = [
             'id' => $bank['id'],
             'fullname' => $bank['fullname'],
-            'average_rating' => round($bank['average_rating'], 1),
             'similarity_score' => $similarityScore,
             'details' => [
                 'Service Hours Overlap' => $serviceOverlapScore,
                 'Distance' => $distanceScore,
-                'Average Rating' => $averageRatingScore,
                 'Blood Type Match' => $bloodTypeScore,
             ],
         ];
@@ -210,7 +182,6 @@ $con->close();
         <?php foreach ($topSimilarBanks as $similarBank): ?>
             <li>
                 <?= htmlspecialchars($similarBank['fullname'], ENT_QUOTES, 'UTF-8') ?> 
-                - Average Rating: <?= $similarBank['average_rating'] ?>
                 <br>
                 Similarity Score: <?= round($similarBank['similarity_score'], 2) ?>
                 <br>
@@ -224,7 +195,6 @@ $con->close();
         <?php foreach ($nonRecommendedBanks as $nonRecommendedBank): ?>
             <li>
                 <?= htmlspecialchars($nonRecommendedBank['fullname'], ENT_QUOTES, 'UTF-8') ?> 
-                - Average Rating: <?= $nonRecommendedBank['average_rating'] ?>
                 <br>
                 Similarity Score: <?= round($nonRecommendedBank['similarity_score'], 2) ?>
                 <br>

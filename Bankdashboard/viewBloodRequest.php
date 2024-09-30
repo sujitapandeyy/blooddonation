@@ -104,7 +104,7 @@ $requests = $stmt->get_result();
             <div class="mb-4">
                 <label for="deliveryHours" class="block text-sm font-medium text-gray-700">Hours</label>
                 <select id="deliveryHours" class="w-full p-2 border border-gray-300 rounded">
-                    <option value="">Select hours (optional)</option>
+                    <option value="">Select hours </option>
                     <?php for ($i = 0; $i < 24; $i++): ?>
                         <option value="<?php echo str_pad($i, 2, '0', STR_PAD_LEFT); ?>"><?php echo str_pad($i, 2, '0', STR_PAD_LEFT); ?></option>
                     <?php endfor; ?>
@@ -113,7 +113,7 @@ $requests = $stmt->get_result();
             <div class="mb-4">
                 <label for="deliveryMinutes" class="block text-sm font-medium text-gray-700">Minutes</label>
                 <select id="deliveryMinutes" class="w-full p-2 border border-gray-300 rounded">
-                    <option value="">Select minutes (optional)</option>
+                    <option value="">Select minutes </option>
                     <?php for ($i = 0; $i < 60; $i++): ?>
                         <option value="<?php echo str_pad($i, 2, '0', STR_PAD_LEFT); ?>"><?php echo str_pad($i, 2, '0', STR_PAD_LEFT); ?></option>
                     <?php endfor; ?>

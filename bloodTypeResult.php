@@ -39,7 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['blood_type'])) {
     }
 
     // Fetch blood bank details with available blood type
-   // Fetch blood bank details with available blood type
    $bank_stmt = $con->prepare("
    SELECT DISTINCT u.id, u.fullname, u.email, u.phone, u.address
    FROM users u
@@ -57,7 +56,7 @@ $bloodBanks[] = $row;
 }
 
 } else {
-    header('Location: index.php'); // Redirect to the main page if accessed directly
+    header('Location: index.php');
     exit();
 }
 $default_image_path = 'img/defaultimage.png';
@@ -97,7 +96,6 @@ $default_image_path = 'img/defaultimage.png';
             </div>
         </div>
 
-        <!-- Display Logged-In User's Info if available -->
         <?php if ($user): ?>
             <div class="">
                 <!-- <h2 class="text-2xl font-extrabold text-gray-900">Welcome, <?= htmlspecialchars($user['fullname']) ?></h2>

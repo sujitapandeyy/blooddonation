@@ -75,12 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rating'])) {
         $existingRating = $checkRatingStmt->get_result()->fetch_assoc();
 
         if ($existingRating) {
-            // Update existing rating
             $updateRatingStmt = $con->prepare("UPDATE blood_bank_ratings SET rating = ? WHERE blood_bank_id = ? AND user_id = ?");
             $updateRatingStmt->bind_param("iii", $rating, $bloodBankId, $user_id);
             $success_message = $updateRatingStmt->execute() ? "Your rating has been updated successfully!" : "Failed to update the rating: " . $con->error;
         } else {
-            // Insert new rating
             $insertRatingStmt = $con->prepare("INSERT INTO blood_bank_ratings (blood_bank_id, user_id, rating) VALUES (?, ?, ?)");
             $insertRatingStmt->bind_param("iii", $bloodBankId, $user_id, $rating);
             $success_message = $insertRatingStmt->execute() ? "Your rating has been submitted successfully!" : "Failed to submit the rating: " . $con->error;

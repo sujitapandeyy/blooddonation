@@ -12,7 +12,7 @@ if (isset($_SESSION['useremail'])) {
     $user_result = $user_stmt->get_result();
     if ($user_result->num_rows > 0) {
         $user = $user_result->fetch_assoc();
-        $user_id = $user['id'];  // Get the user's ID for further queries
+        $user_id = $user['id']; 
     } else {
         echo "User not found.";
         exit();

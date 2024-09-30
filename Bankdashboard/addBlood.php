@@ -26,7 +26,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $contact = $_POST['contact'];
     $bloodqty = $_POST['bloodqty'];
     $collection = $_POST['collection'];
-
+    if (!preg_match('/^\d{10}$/', $contact)) { // Validate phone number
+        $error = "Phone number invalid!";
+    } 
     // Calculate expiry date (42 days after collection date)
     $collectionDate = new DateTime($collection);
     $collectionDate->add(new DateInterval('P42D'));
