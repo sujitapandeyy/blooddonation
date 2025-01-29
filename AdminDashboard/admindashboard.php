@@ -27,16 +27,16 @@ if (!isset($_SESSION['Adminemail'])) {
             </div>
             <ul class="w-full">
                 <li class="w-full mb-3">
-                    <a href="#" data-content="dashboard" class="block w-full py-2 text-center bg-blue-500 rounded transition duration-300 hover:bg-red-600 text-white"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="#" data-content="dashboard" class="block w-full py-2 text-center bg-red-500 rounded transition duration-300 hover:bg-red-600 text-white"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 </li>
                 <li class="w-full mb-3">
-                    <a href="#" data-content="users" class="block w-full py-2 text-center bg-blue-500 rounded transition duration-300 hover:bg-red-600 text-white"><i class="fas fa-users"></i> Manage User</a>
+                    <a href="#" data-content="users" class="block w-full py-2 text-center bg-red-500 rounded transition duration-300 hover:bg-red-600 text-white"><i class="fas fa-users"></i> Manage User</a>
                 </li>
                 <li class="w-full mb-3">
-                    <a href="#" data-content="bloodbank" class="block w-full py-2 text-center bg-blue-500 rounded transition duration-300 hover:bg-red-600 text-white"><i class="fas fa-tint"></i> Add BBank</a>
+                    <a href="#" data-content="bloodbank" class="block w-full py-2 text-center bg-red-500 rounded transition duration-300 hover:bg-red-600 text-white"><i class="fas fa-tint"></i> Add BBank</a>
                 </li>
                 <li class="w-full mb-3">
-                    <a href="#" data-content="view" class="block w-full py-2 text-center bg-blue-500 rounded transition duration-300 hover:bg-red-600 text-white"><i class="fas fa-user"></i> View BloodBanks</a>
+                    <a href="#" data-content="view" class="block w-full py-2 text-center bg-red-500 rounded transition duration-300 hover:bg-red-600 text-white"><i class="fas fa-user"></i> View BloodBanks</a>
                 </li>
             </ul>
             <button id="logout-btn" class="mt-auto w-32 py-2 bg-red-600 rounded text-center text-lg transition duration-300 hover:bg-gray-600 text-white">
